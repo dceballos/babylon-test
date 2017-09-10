@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Using babylon.js - How to load a scene</title>
+    <script src="babylon.js"></script>
+    <style>
+html, body {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+                #renderCanvas {
+                  width: 100%;
+                  height: 100%;
+                }
+    </style>
+  </head>
+  <body>
+    <canvas id="renderCanvas"></canvas>
+<script>
+    if (BABYLON.Engine.isSupported()) {
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        BABYLON.SceneLoader.Load("", "es100.babylon", engine, function (newScene) {
+            // Wait for textures and shaders to be ready
+            newScene.executeWhenReady(function () {
+                var win = newScene[0];
+                var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), newScene);
+                newScene.activeCamera = camera;
+                newScene.activeCamera.attachControl(canvas);
+                newScene.clearColor = new BABYLON.Color3(0, 1, 0);
+                newScene.material = new BABYLON.StandardMaterial('mat', newScene);
+                newScene.material.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+                // Attach camera to canvas inputs
+
+                // Once the scene is loaded, just register a render loop to render it
+                engine.runRenderLoop(function() {
+                    newScene.render();
+                });
+            });
+        }, function (progress) {
+            // To do: give progress feedback to user
+        });
+    }
+</script>
+  </body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Assemblies Viewer</title>
+    <script src="babylon.js"></script>
+    <script src="babylon.objFileLoader.js"></script>
+    <style>
+			html, body {
+  			width: 100%;
+  			height: 100%;
+  			padding: 0;
+  			margin: 0;
+  			overflow: hidden;
+			}
+      #renderCanvas {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+			function getMesh(meshes, meshID) {
+        var mesh;
+				meshes.forEach(function(m) {
+					if (m.id == meshID) {
+						mesh = m;
+						return mesh;
+					}
+				});
+				return mesh;
+			}
+
+      function getVerticalMeshes(meshes) {
+        var vmeshes = [];
+				meshes.forEach(function(m) {
+          var parts = m.id.split("_");
+					if (parts[0] == "Layer_Vertical") {
+						vmeshes.push(m);
+					}
+				});
+				return vmeshes;
+			}
+
+      function getHorizontalMeshes(meshes) {
+        var vmeshes = [];
+				meshes.forEach(function(m) {
+          var parts = m.id.split("_");
+					if (parts[0] == "Layer_Horizontal") {
+						vmeshes.push(m);
+					}
+				});
+				return vmeshes;
+			}
+
+      function panelMeshes(meshes) {
+        var panels = {};
+				meshes.forEach(function(m) {
+          var parts = m.id.split("_");
+          if (!parts[1] || !parts[2] || !parts[3]) {
+            return;
+          }
+          var orientation = parts[1].toLowerCase();
+          var panel = parts[2].toLowerCase();
+          var position = parts[3].toLowerCase();
+          if (panels[panel]) {
+            if (panels[panel][orientation]) {
+              panels[panel][orientation][position] = m;
+            }else{
+              panels[panel][orientation] = {};
+            }
+          }else{
+            panels[panel] = {};
+            panels[panel][orientation] = {};
+            panels[panel][orientation][position] = m;
+          }
+        });
+        return panels;
+      }
+
+      function getMeshZMin(mesh) {
+        return mesh.getBoundingInfo().boundingBox.minimum.z;
+      }
+
+      function isFirstPanel(panels) {
+      }
+
+      function isLastPanel(panels) {
+      }
+
+      function scaleVertical(meshes, scaleFactor) {
+        var parts = panelMeshes(meshes);
+        var vmeshes = Object.values(parts.frame.vertical);
+        var verticalMax = 0;
+        var verticalBoundingBox;
+
+        // Scale Jambs
+        vmeshes.forEach(function(m) {
+				  m.scaling.z = scaleFactor;
+					console.log(m.id);
+					console.log(m.getBoundingInfo());
+          if (m.getBoundingInfo().boundingBox.maximum.z > verticalMax) {
+            verticalBoundingBox = m.getBoundingInfo();
+          }
+        });
+
+        // Position Head
+        var head = parts.frame.horizontal["1"];
+        var toZ = (scaleFactor-1) * verticalBoundingBox.boundingBox.minimum.z;
+				head.locallyTranslate(new BABYLON.Vector3(0, 0, toZ));
+
+        // Position Sill
+        var sill = parts.frame.horizontal["2"];
+        var toZ = (scaleFactor-1) * verticalBoundingBox.boundingBox.maximum.z;
+				sill.locallyTranslate(new BABYLON.Vector3(0, 0, toZ));
+
+        // Posiiton Rails
+
+        // Position Panels
+        var panels = Object.keys(parts).filter(function(e) {
+          return e.length == 1;
+        }).sort();
+
+        var topPanel = parts[panels[0]];
+        var topPanelHKeys = Object.keys(topPanel.horizontal);
+        var topPanelTop = topPanel.horizontal[topPanelHKeys[0]];
+        var topPanelTopZ = (scaleFactor-1) * verticalBoundingBox.boundingBox.minimum.z;
+        topPanelTop.locallyTranslate(new BABYLON.Vector3(0, 0, topPanelTopZ));
+       
+        var topPanelVKeys = Object.keys(topPanel.vertical);
+        Object.values(topPanel.vertical).forEach(function(m) {
+          var bounds = m.getBoundingInfo().boundingBox;
+          var length = bounds.maximum.z - bounds.minimum.z;
+          var topBounds = topPanelTop.getBoundingInfo().boundingBox;
+          var distance = BABYLON.Vector3.Distance(bounds.maximum, verticalBoundingBox.maximum);
+          var toLength = length+distance;
+          console.log(distance);
+          ratio = toLength/length;
+          console.log(toLength);
+          console.log(ratio);
+				  //m.scaling.z = 1.3;
+          //m.locallyTranslate(new BABYLON.Vector3(0, 0, -1));
+        });
+
+        var bottomPanel = parts[panels[panels.length-1]];
+        var bottomPanelHKeys = Object.keys(bottomPanel.horizontal);
+        var lastIndex = bottomPanelHKeys.length-1;
+        var bottomPanelLast = bottomPanel.horizontal[bottomPanelHKeys[lastIndex]];
+        var bottomPanelLastZ = (scaleFactor-1) * verticalBoundingBox.boundingBox.maximum.z;
+        bottomPanelLast.locallyTranslate(new BABYLON.Vector3(0, 0, bottomPanelLastZ));
+
+        var secondLastIndex = lastIndex-1;
+        var bottomPanelSecondLast = bottomPanel.horizontal[bottomPanelHKeys[secondLastIndex]];
+        var bottomPanelSecondBottomZ = (scaleFactor-1) * verticalBoundingBox.boundingBox.maximum.z;
+        bottomPanelSecondLast.locallyTranslate(new BABYLON.Vector3(0, 0, bottomPanelSecondBottomZ));
+
+        console.log(panels);
+      }
+
+			if (BABYLON.Engine.isSupported()) {
+  			var canvas = document.getElementById("renderCanvas");
+  			var engine = new BABYLON.Engine(canvas, true);
+
+				var createScene = function() {
+				// create a basic BJS Scene object
+				var scene = new BABYLON.Scene(engine);
+
+				// create a FreeCamera, and set its position to (x:0, y:5, z:-10)
+				var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 150, new BABYLON.Vector3.Zero(), scene);
+				scene.activeCamera = camera;
+				scene.activeCamera.attachControl(canvas);
+
+				// create a basic light, aiming 0,1,0 - meaning, to the sky
+				var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1,1,1), scene);
+
+				var loader = new BABYLON.AssetsManager(scene);
+				var pos = function(t) {
+					t.loadedMeshes.forEach(function(m) {
+						m.rotation.y = Math.PI/2;
+					});
+				};
+
+				var assembly = loader.addMeshTask("assembly", "", "", "cactus-3d.obj");
+				assembly.onSuccess = pos;
+
+				loader.onFinish = function() {
+					scaleVertical(scene.meshes, 1.3);
+          console.log(panelMeshes(scene.meshes));
+				};
+
+				loader.load();
+				return scene;
+			}
+
+			var scene = createScene();
+
+			engine.runRenderLoop(function() {
+				scene.render();
+			});
+
+			window.addEventListener('resize', function() {
+				engine.resize();
+			});
+
+			window.addEventListener("click", function () {
+				scene.meshes.forEach(function (m) {
+					m.material = null;
+				});
+				var pickResult = scene.pick(scene.pointerX, scene.pointerY);
+        if (pickResult.pickedMesh == undefined) {
+          return;
+        }
+				s1mat = new BABYLON.StandardMaterial("s1mat", scene);
+				pickResult.pickedMesh.material = s1mat;
+				s1mat.diffuseColor = new BABYLON.Color3(0,1,0);
+				console.log(pickResult.pickedMesh.id);
+        var bounds = pickResult.pickedMesh.getBoundingInfo().boundingBox;
+        var minn   = bounds.minimumWorld.z;
+        var maxx   = bounds.maximumWorld.z;
+        console.log(bounds);
+        console.log("min:"+minn +" max:"+maxx+" len:"+length);
+			});
+
+		}
+    </script>
+  </body>
+</html>
