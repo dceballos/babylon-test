@@ -98,8 +98,8 @@
         // Scale Jambs
         vmeshes.forEach(function(m) {
 				  m.scaling.z = scaleFactor;
-					console.log(m.id);
-					console.log(m.getBoundingInfo());
+					///console.log(m.id);
+					//console.log(m.getBoundingInfo());
           if (m.getBoundingInfo().boundingBox.maximum.z > verticalMax) {
             verticalBoundingBox = m.getBoundingInfo();
           }
@@ -132,19 +132,20 @@
         Object.values(topPanel.vertical).forEach(function(m) {
           var bounds = m.getBoundingInfo().boundingBox;
           var length = bounds.maximum.z - bounds.minimum.z;
-          var topBounds = topPanelTop.getBoundingInfo().boundingBox;
-          var distance = BABYLON.Vector3.Distance(bounds.maximum, verticalBoundingBox.maximum);
-          var toLength = length+distance;
-          console.log(distance);
+          var gap = Math.abs(topPanelTopZ - bounds.maximum.z);
+          var toLength = length+gap;
+          console.log("topPanelLength: "+length);
           ratio = toLength/length;
-          console.log(toLength);
-          console.log(ratio);
-				  //m.scaling.z = 1.3;
-          //m.locallyTranslate(new BABYLON.Vector3(0, 0, -1));
+				  m.scaling.z = ratio;
         });
 
         var bottomPanel = parts[panels[panels.length-1]];
         var bottomPanelHKeys = Object.keys(bottomPanel.horizontal);
+       
+        var firstIndex = bottomPanelHKeys[0];
+        var bottomPanelFirst = bottomPanel.horizontal[bottomPanelHKeys[firstIndex]];
+        var bottomPanelFirstBounds = bottomPanelFirst.getBoundingInfo().boundingBox;
+
         var lastIndex = bottomPanelHKeys.length-1;
         var bottomPanelLast = bottomPanel.horizontal[bottomPanelHKeys[lastIndex]];
         var bottomPanelLastZ = (scaleFactor-1) * verticalBoundingBox.boundingBox.maximum.z;
@@ -154,8 +155,34 @@
         var bottomPanelSecondLast = bottomPanel.horizontal[bottomPanelHKeys[secondLastIndex]];
         var bottomPanelSecondBottomZ = (scaleFactor-1) * verticalBoundingBox.boundingBox.maximum.z;
         bottomPanelSecondLast.locallyTranslate(new BABYLON.Vector3(0, 0, bottomPanelSecondBottomZ));
+        bottomPanelSecondLast.computeWorldMatrix();
 
-        console.log(panels);
+        var bottomPanelVKeys = Object.keys(bottomPanel.vertical);
+        Object.values(bottomPanel.vertical).forEach(function(m) {
+          var bounds = m.getBoundingInfo().boundingBox;
+          var lastBounds = bottomPanelLast.getBoundingInfo().boundingBox;
+          var lastHeight = lastBounds.maximum.z - lastBounds.minimum.z;
+          var secondLastBounds = bottomPanelSecondLast.getBoundingInfo().boundingBox;
+          var secondLastHeight = secondLastBounds.maximum.z - secondLastBounds.minimum.z;
+          var margin = secondLastHeight+lastHeight;
+          var lastZoffset = bottomPanelSecondBottomZ + margin;
+          var length = bounds.maximum.z - bounds.minimum.z;
+          var gap = Math.abs(bounds.minimum.z - lastZoffset);
+          var toLength = length+gap;
+          ratio = toLength/length;
+          console.log(bounds);
+          console.log("bottomPanelZ: "+lastZoffset);
+          console.log("gap: "+gap);
+          console.log("length: "+length);
+          console.log("tolength: "+toLength);
+          console.log("ratio: "+ratio);
+				  m.scaling.z = ratio;
+          var z = (scaleFactor-1) * bottomPanelFirstBounds.minimum.z;
+          var newlength = bounds.maximum.z - bounds.minimum.z;
+          console.log("new length: "+newlength);
+          //m.locallyTranslate(new BABYLON.Vector3(0, 0, z));
+          //m.position.x = -4;
+        });
       }
 
 			if (BABYLON.Engine.isSupported()) {
@@ -177,7 +204,9 @@
 				var loader = new BABYLON.AssetsManager(scene);
 				var pos = function(t) {
 					t.loadedMeshes.forEach(function(m) {
+            //console.log(m.id);
 						m.rotation.y = Math.PI/2;
+            //m.showBoundingBox =true
 					});
 				};
 
@@ -185,8 +214,8 @@
 				assembly.onSuccess = pos;
 
 				loader.onFinish = function() {
-					scaleVertical(scene.meshes, 1.3);
-          console.log(panelMeshes(scene.meshes));
+					scaleVertical(scene.meshes, 1.8);
+          //console.log(panelMeshes(scene.meshes));
 				};
 
 				loader.load();
@@ -219,7 +248,7 @@
         var minn   = bounds.minimumWorld.z;
         var maxx   = bounds.maximumWorld.z;
         console.log(bounds);
-        console.log("min:"+minn +" max:"+maxx+" len:"+length);
+        //console.log("min:"+minn +" max:"+maxx+" len:"+length);
 			});
 
 		}
