@@ -137,6 +137,8 @@
           console.log("topPanelLength: "+length);
           ratio = toLength/length;
 				  m.scaling.z = ratio;
+          //this is bs but does something
+          //m.locallyTranslate(new BABYLON.Vector3(0, 0, (ratio/2)));
         });
 
         var bottomPanel = parts[panels[panels.length-1]];
@@ -176,12 +178,15 @@
           console.log("length: "+length);
           console.log("tolength: "+toLength);
           console.log("ratio: "+ratio);
+          console.log(m.getBoundingInfo().boundingBox);
 				  m.scaling.z = ratio;
+          m.computeWorldMatrix(true);
+          console.log(m.getBoundingInfo().boundingBox);
           var z = (scaleFactor-1) * bottomPanelFirstBounds.minimum.z;
           var newlength = bounds.maximum.z - bounds.minimum.z;
           console.log("new length: "+newlength);
-          //m.locallyTranslate(new BABYLON.Vector3(0, 0, z));
-          //m.position.x = -4;
+          //this is bs but does something
+          //m.locallyTranslate(new BABYLON.Vector3(0, 0, -(ratio/2)));
         });
       }
 
@@ -214,7 +219,7 @@
 				assembly.onSuccess = pos;
 
 				loader.onFinish = function() {
-					scaleVertical(scene.meshes, 1.8);
+					scaleVertical(scene.meshes, 1.1);
           //console.log(panelMeshes(scene.meshes));
 				};
 
