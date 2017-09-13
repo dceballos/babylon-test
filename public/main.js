@@ -4,10 +4,9 @@ window.onload=function(){
   animate();
   var loader = new THREE.OBJLoader();
   loader.load( 'cactus-3d.obj', function ( object ) {
-    object.rotation.x = Math.PI/2;
     scene.add(object);
 
-    var verticalScale = 1.8;
+    var verticalScale = 1.4;
     object.children.forEach(function(mesh) {
       console.log(mesh.name);
     });
@@ -20,16 +19,17 @@ window.onload=function(){
     var vbead1 = object.getObjectByName("Layer_Vertical_A_1_Glazing_Bead_Fixed_1_ESEL110");
 
     var jambBox = new THREE.Box3().setFromObject(jamb1);
-    var jambHeight = jambBox.max.z - jambBox.min.z;
+    var jambHeight = jambBox.max.y - jambBox.min.y;
     var newJambHeight = jambHeight*verticalScale;
     var headOffset = (newJambHeight-jambHeight)/2;
     console.log(jamb1);
 
-    jamb1.scale.z = verticalScale;
-    jamb2.scale.z = verticalScale;
-    head.position.z = -headOffset;;
-    sill.position.z = headOffset;
-    bead1.position.z = -headOffset;
+    jamb1.scale.y = verticalScale;
+    jamb2.scale.y = verticalScale;
+    head.position.y = headOffset;;
+    sill.position.y = -headOffset;
+    bead1.position.y = headOffset;
+    vbead1.scale.y = verticalScale;
 
     console.log(headOffset);
 
@@ -39,7 +39,6 @@ window.onload=function(){
     //var v2 = new THREE.Vector3(center2.x, center2.y, center2.z);
     //jamb1.position.x = v1.distanceTo(v2)+10;
     //bead1.position.z = -headOffset;
-    //vbead1.scale.z = verticalScale;
     //vbead1.position.z = 1;
   });
 }
@@ -57,9 +56,8 @@ function updateGeometry(jamb1) {
 function init() {
   container = document.getElementById( 'container' );
   console.log(container)
-    camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+  camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
   camera.position.z = 200;
-
   scene = new THREE.Scene();
 
   var ambient = new THREE.AmbientLight( 0x101030 );
