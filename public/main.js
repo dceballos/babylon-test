@@ -67,8 +67,12 @@ window.onload=function(){
   });
 }
 
+window.addEventListener( 'resize', resize, false );
+
 function resize() {
-  
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize( window.innerWidth, window.innerHeight );  
 }
 
 function updateGeometry(jamb1) {
@@ -94,7 +98,6 @@ function init() {
   renderer = new THREE.WebGLRenderer();
   renderer.setSize( window.innerWidth, window.innerHeight );
   container.appendChild( renderer.domElement );
-
 }
 
 function animate() {
