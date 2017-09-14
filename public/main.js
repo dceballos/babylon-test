@@ -6,32 +6,56 @@ window.onload=function(){
   loader.load( 'cactus-3d.obj', function ( object ) {
     scene.add(object);
 
-    var verticalScale = 1.4;
+    var verticalScale = 1.9;
     object.children.forEach(function(mesh) {
       console.log(mesh.name);
+      mesh.geometry.dynamic = true;
+      mesh.geometry.verticesNeedUpdate = true;
+      //var mat = new THREE.MeshBasicMaterial( { color: 0xffffff, wireframe : false  }  );
+      //mesh.material = mat;
     });
 
-    var head = object.getObjectByName("Layer_Horizontal_Frame_1_Head_ESEL101A");
-    var sill = object.getObjectByName("Layer_Horizontal_Frame_2_Sill_ESEL102");
-    var jamb1 = object.getObjectByName("Layer_Vertical_Frame_1_Jamb_1_ESEL104");
-    var jamb2 = object.getObjectByName("Layer_Vertical_Frame_2_Jamb_2_ESEL104");
-    var bead1 = object.getObjectByName("Layer_Horizontal_A_1_Glazing_Bead_Fixed__1_ESEL110");
+    var head   = object.getObjectByName("Layer_Horizontal_Frame_1_Head_ESEL101A");
+    var sill   = object.getObjectByName("Layer_Horizontal_Frame_2_Sill_ESEL102");
+    var jamb1  = object.getObjectByName("Layer_Vertical_Frame_1_Jamb_1_ESEL104");
+    var jamb2  = object.getObjectByName("Layer_Vertical_Frame_2_Jamb_2_ESEL104");
+    var hbead1  = object.getObjectByName("Layer_Horizontal_A_1_Glazing_Bead_Fixed__1_ESEL110");
+    var hbead2  = object.getObjectByName("Layer_Horizontal_A_2_Glazing_Bead_Fixed_2_ESEL110");
     var vbead1 = object.getObjectByName("Layer_Vertical_A_1_Glazing_Bead_Fixed_1_ESEL110");
+    var vbead2 = object.getObjectByName("Layer_Vertical_A_2_Glazing_Bead_Fixed_2_ESEL110");
 
-    var jambBox = new THREE.Box3().setFromObject(jamb1);
-    var jambHeight = jambBox.max.y - jambBox.min.y;
+    var jambBox       = new THREE.Box3().setFromObject(jamb1);
+    var jambHeight    = jambBox.max.y - jambBox.min.y;
     var newJambHeight = jambHeight*verticalScale;
-    var headOffset = (newJambHeight-jambHeight)/2;
-    console.log(jamb1);
 
-    jamb1.scale.y = verticalScale;
-    jamb2.scale.y = verticalScale;
-    head.position.y = headOffset;;
-    sill.position.y = -headOffset;
-    bead1.position.y = headOffset;
-    vbead1.scale.y = verticalScale;
+    jamb1.scale.y    = verticalScale;
+    jamb2.scale.y    = verticalScale;
 
-    console.log(headOffset);
+    var jambBoxFinal  = new THREE.Box3().setFromObject(jamb1);
+    var headBoxBefore =  new THREE.Box3().setFromObject(jamb1);
+    var headOffset    = jambBoxFinal.max.y-jambBox.max.y;
+    head.position.y  = headOffset;
+    sill.position.y  = -headOffset;
+
+    var hBead1Box       = new THREE.Box3().setFromObject(hbead1);
+    var hBead2Box       = new THREE.Box3().setFromObject(hbead2);
+    var panelCenterBefore = (hBead1Box.min.y-hBead2Box.max.y)/2;
+    hbead1.position.y   = headOffset;
+    var hBead1BoxAfter  = new THREE.Box3().setFromObject(hbead1);
+    var panelCenter     = (hBead1BoxAfter.min.y-hBead2Box.max.y)/2;
+    console.log(panelCenter,panelCenterBefore);
+
+    var vBead1Box = new THREE.Box3().setFromObject(vbead1);
+    var vBead1Len = vBead1Box.max.y-vBead1Box.min.y;
+    var vBead1LenNew = hBead1BoxAfter.min.y-hBead2Box.max.y;
+    var vBeadScaleFactor = vBead1LenNew/vBead1Len;
+    console.log(vBeadScaleFactor);
+    vbead1.scale.y = vBeadScaleFactor;
+    vbead2.scale.y = vBeadScaleFactor;
+    var vBead1BoxAfter = new THREE.Box3().setFromObject(vbead1);
+    console.log(vBead1Box);
+    vbead1.position.y = -(vBead1BoxAfter.min.y-hBead2Box.max.y);
+    vbead2.position.y = -(vBead1BoxAfter.min.y-hBead2Box.max.y);
 
     //var center1 = jamb1.geometry.center();
     //var center2 = jamb2.geometry.center();
