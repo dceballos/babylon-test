@@ -9,8 +9,6 @@ window.onload=function(){
     var verticalScale = 1.9;
     object.children.forEach(function(mesh) {
       console.log(mesh.name);
-			//var material = new THREE.MeshLambertMaterial({reflectivity:1});
-			//mesh.material = material;
       mesh.geometry.dynamic = true;
       mesh.geometry.verticesNeedUpdate = true;
     });
@@ -67,7 +65,6 @@ window.onload=function(){
     //vbead1.position.z = 1;
 		var frameBox = meshBox(object);
 		var parts = meshesAsParts(object);
-		console.log(parts);
 		verticallyScale(1.6, parts, frameBox);
   });
 }
@@ -108,13 +105,11 @@ function verticallyScale(factor, parts, frameBox) {
 	// Translate frame bottom parts
 	var fbparts = Object.keys(parts.frame['bottom']).sort();
 	fbparts.forEach(function(order) {
-		console.log(order);
 		var mesh   = parts.frame['bottom'][order];
 		var box    = meshBox(mesh);
 		var height = meshHeight(mesh);
 		var newPos = (((frameHeight*factor)-frameHeight)/2);
 		mesh.position.y = -newPos;
-		console.log(frameHeight,newPos);
 	});
 
 	// Scale frame left parts
@@ -129,7 +124,6 @@ function verticallyScale(factor, parts, frameBox) {
 
     if (frameHeight == height+meshHeight(head)+meshHeight(sill)) {
 			offset = meshHeight(head)+meshHeight(sill);
-			console.log(offset);
 		}else if (frameHeight == height+meshHeight(head)) {
 			offset = meshHeight(head)+meshHeight(head);
 		}else if (frameHeight == height+meshHeight(sill)) {
@@ -166,7 +160,6 @@ function verticallyScale(factor, parts, frameBox) {
 
     if (frameHeight == height+meshHeight(head)+meshHeight(sill)) {
 			offset = meshHeight(head)+meshHeight(sill);
-			console.log(offset);
 		}else if (frameHeight == height+meshHeight(head)) {
 			offset = meshHeight(head)+meshHeight(head);
 		}else if (frameHeight == height+meshHeight(sill)) {
@@ -204,51 +197,51 @@ function verticallyScale(factor, parts, frameBox) {
 		var ogPanel       = ogParts.panels[panelName];
 		var ogPanelHeight = panelHeight(ogPanel);
 		var panel         = parts.panels[panelName];
-		console.log("ogpanel", panelName , " h:", ogPanelHeight);
+		var previous      = previousItem(panelName, parts, ogParts);
+    var previousBox   = meshBox(previous);
 		
 		// translate top parts
 		var ptparts = Object.keys(panel['top']).sort();
 		ptparts.forEach(function(part) {
 			var mesh   = panel['top'][part];
 			var newPos = ((ogPanelHeight*factor)-ogPanelHeight)/2;
-			console.log(part, newPos);
 			mesh.position.y = newPos;
 		});
 		
+		// translate bottom parts
 		var pbparts = Object.keys(panel['bottom']).sort();
 		pbparts.forEach(function(part) {
 			var mesh   = panel['bottom'][part];
 			var newPos = ((ogPanelHeight*factor)-ogPanelHeight)/2;
-			console.log("bottom", newPos);
 			mesh.position.y = -newPos;
 		});	
 
+		// scale left parts
 		var plparts = Object.keys(panel['left']).sort();
 		plparts.forEach(function(part) {
 			var mesh = panel['left'][part];
 			var currentPanelHeight = panelHeight(panel);
 			var ratio = (currentPanelHeight+(panelOffset(panel)/2))/ogPanelHeight;
-			console.log(ogPanelHeight,currentPanelHeight, ratio);
 			mesh.scale.y = ratio;
 		});
 
+		// scale right parts
 		var plparts = Object.keys(panel['right']).sort();
 		plparts.forEach(function(part) {
 			var mesh = panel['right'][part];
 			var currentPanelHeight = panelHeight(panel);
 			var ratio = (currentPanelHeight+(panelOffset(panel)/2))/ogPanelHeight;
-			console.log(ogPanelHeight,currentPanelHeight, ratio);
 			mesh.scale.y = ratio;
 		});
 
-		var previous = previousItem(panelName, parts, ogParts);
-
+    // reposition top parts
 		var ptparts = Object.keys(panel['top']).sort();
 		ptparts.forEach(function(part) {
 			var mesh   = panel['top'][part];
       var ogMesh = ogPanel['top'][part];
 			var previousOffset = previousItemOffset(ogMesh, previous);
-			mesh.position.y = mesh.position.y+previousOffset;
+      console.log(panelName, previousOffset);
+			//mesh.position.y = previousBox.min.y+previousOffset;
 		});
 		
 		var pbparts = Object.keys(panel['bottom']).sort();
@@ -256,21 +249,23 @@ function verticallyScale(factor, parts, frameBox) {
 			var mesh   = panel['bottom'][part];
       var ogMesh = ogPanel['bottom'][part];
 			var previousOffset = previousItemOffset(ogMesh, previous);
-			mesh.position.y = mesh.position.y+previousOffset;
+			//mesh.position.y = previousBox.min.y+previousOffset;
 		});
 
 		var pbparts = Object.keys(panel['left']).sort();
 		pbparts.forEach(function(part) {
 			var mesh   = panel['left'][part];
-			var offset = (panelHeight(panel) - meshHeight(mesh)) / 2;
-			mesh.position.y = mesh.position.y+(offset/2);
+      var ogMesh = ogPanel['left'][part];
+			var previousOffset = previousItemOffset(ogMesh, previous);
+			//mesh.position.y = previousBox.min.y+previousOffset;
 		});
 
 		var pbparts = Object.keys(panel['right']).sort();
 		pbparts.forEach(function(part) {
 			var mesh   = panel['right'][part];
-			var offset = (panelHeight(panel) - meshHeight(mesh)) / 2;
-			mesh.position.y = mesh.position.y+(offset/2);
+      var ogMesh = ogPanel['right'][part];
+			var previousOffset = previousItemOffset(ogMesh, previous);
+			//mesh.position.y = previousBox.min.y+previousOffset;
 		});
 	});
 	
@@ -399,7 +394,6 @@ function updateGeometry(jamb1) {
 
 function init() {
   container = document.getElementById( 'container' );
-  console.log(container)
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
   camera.position.z = 200;
   scene = new THREE.Scene();
