@@ -13,7 +13,7 @@ window.onload=function(){
       mesh.geometry.verticesNeedUpdate = true;
     });
 
-		verticallyScale(1.6, object);
+		verticallyScale(1.5, object);
   });
 }
 
@@ -35,14 +35,14 @@ function meshWidth(mesh) {
 function verticallyScale(factor, object) {
 	// Frame, Rails, Panels
 	// Translate then scale then adjust(translate)
-  var ogObject    = object.clone();
-	var ogFrameBox  = meshBox(ogObject);
-	var parts       = meshesAsParts(object,false);
-	var ogParts     = meshesAsParts(ogObject,true);
-	var ogFrameHeight = ogFrameBox.max.y-ogFrameBox.min.y;	
-	var ogFrameWidth  = ogFrameBox.max.y-ogFrameBox.min.y;
+  var ogObject              = object.clone();
+	var ogFrameBox            = meshBox(ogObject);
+	var parts                 = meshesAsParts(object,false);
+	var ogParts               = meshesAsParts(ogObject,true);
+	var ogFrameHeight         = ogFrameBox.max.y-ogFrameBox.min.y;	
+	var ogFrameWidth          = ogFrameBox.max.y-ogFrameBox.min.y;
   var ogVerticalFrameOffset = totalVerticalOffset(ogParts);
-  var ogFrameDLO = ogFrameHeight-ogVerticalFrameOffset;
+  var ogFrameDLO            = ogFrameHeight-ogVerticalFrameOffset;
 
 	// Translate frame top parts
 	var ftparts = Object.keys(parts.frame['top']).sort();
@@ -132,22 +132,9 @@ function verticallyScale(factor, object) {
 		mesh.position.y = newPos;
 	});
 
-  var newFrameHeight = meshHeight(object);
+  var newFrameHeight         = ogFrameHeight*factor;
   var newVerticalFrameOffset = totalVerticalOffset(parts);
-  var newFrameDLO = newFrameHeight-newVerticalFrameOffset;
-
-	// Position rails
-	var rparts = Object.keys(parts.rails).sort();
-	rparts.forEach(function(order) {
-		var mesh       = parts.rails[order];
-		var ogMesh     = ogParts.rails[order];
-		var box        = meshBox(mesh);
-    var ogBox      = meshBox(ogMesh);
-    var posRatio   = ogBox.max.y/ogFrameHeight;
-    var newPos     = posRatio*newFrameHeight;
-    var offset     = box.max.y+newPos;
-    mesh.position.y = offset;
-	});
+  var newFrameDLO            = newFrameHeight-newVerticalFrameOffset;
 
 	// Position panels
 	var panelNames = Object.keys(parts.panels).sort();
@@ -165,7 +152,7 @@ function verticallyScale(factor, object) {
     var ogDLOHeight   = panelDLOHeight(ogPanel); 
     var ogDLORatio    = ogDLOHeight/ogFrameDLO;
     var newDLOHeight  = newFrameDLO*ogDLORatio;
-     
+
 		// translate top parts
 		var ptparts = Object.keys(panel['top']).sort();
 		ptparts.forEach(function(part) {
@@ -255,7 +242,28 @@ function verticallyScale(factor, object) {
 			mesh.position.y  = mesh.position.y+distance;
 		});
 	});
-	
+
+  // Position rails
+	var rparts = Object.keys(parts.rails).sort();
+	rparts.forEach(function(order) {
+		var mesh        = parts.rails[order];
+		var ogMesh      = ogParts.rails[order];
+		var box         = meshBox(mesh);
+    var ogBox       = meshBox(ogMesh);
+    var panel       = adjacentRailPanel(order, parts);
+    var panelMin    = panelBottomMin(panel);
+    var offset      = panelMin-box.max.y;
+    mesh.position.y = offset+mesh.position.y;
+	});
+
+}
+
+function adjacentRailPanel(rail, parts) {
+  var railsKeys = Object.keys(parts.rails);
+  var railIdx   = railsKeys.indexOf(rail);
+  var panelKeys = Object.keys(parts.panels).sort();
+  var panelKey  = panelKeys[railIdx];
+  return parts.panels[panelKey];
 }
 
 function previousItemOffset(current, previous) {
