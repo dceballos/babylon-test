@@ -256,36 +256,46 @@ function verticallyScale(factor, object) {
     // reposition top parts
 		var ptparts = Object.keys(panel['top']).sort();
 		ptparts.forEach(function(part) {
-      var previous       = previousItem(panelName, parts);
 			var mesh           = panel['top'][part];
       var ogMesh         = ogPanel['top'][part];
 			var previousOffset = previousItemOffset(ogMesh, ogPrevious);
       var previousBox    = meshBox(previous);
-			//mesh.position.y = (previousBox.min.y-previous.position.y+previousOffset);
+      var box            = meshBox(mesh);
+      var distance       = previousBox.min.y-box.max.y+previousOffset;
+			mesh.position.y    = mesh.position.y+distance;
 		});
 		
 		var pbparts = Object.keys(panel['bottom']).sort();
 		pbparts.forEach(function(part) {
-			var mesh   = panel['bottom'][part];
-      var ogMesh = ogPanel['bottom'][part];
-			var previousOffset = previousItemOffset(ogMesh, previous);
-			//mesh.position.y = previousBox.min.y+previousOffset;
+			var mesh     = panel['bottom'][part];
+      var box      = meshBox(mesh) 
+      var from     = panelTopMin(panel)-newDLOHeight;
+      var distance = from-box.max.y;
+			mesh.position.y = mesh.position.y+distance;
 		});
 
 		var pbparts = Object.keys(panel['left']).sort();
 		pbparts.forEach(function(part) {
-			var mesh   = panel['left'][part];
-      var ogMesh = ogPanel['left'][part];
-			var previousOffset = previousItemOffset(ogMesh, previous);
-			//mesh.position.y = previousBox.min.y+previousOffset;
+      var mesh           = panel['left'][part];
+      var box            = meshBox(mesh) 
+      var ogMesh         = ogPanel['left'][part];
+			var previousOffset = previousItemOffset(ogMesh, ogPrevious);
+      var previousBox    = meshBox(previous);
+      var from           = panelTopMin(panel)-previousOffset;
+      var distance       = from-box.max.y;
+			mesh.position.y    = distance+mesh.position.y;
 		});
 
 		var pbparts = Object.keys(panel['right']).sort();
 		pbparts.forEach(function(part) {
-			var mesh   = panel['right'][part];
-      var ogMesh = ogPanel['right'][part];
-			var previousOffset = previousItemOffset(ogMesh, previous);
-			//mesh.position.y = previousBox.min.y+previousOffset;
+      var mesh           = panel['right'][part];
+      var box            = meshBox(mesh) 
+      var ogMesh         = ogPanel['right'][part];
+			var previousOffset = previousItemOffset(ogMesh, ogPrevious);
+      var previousBox    = meshBox(previous);
+      var from           = panelTopMin(panel)-previousOffset;
+      var distance       = from-box.max.y;
+			mesh.position.y    = distance+mesh.position.y;
 		});
 	});
 	
@@ -299,7 +309,6 @@ function previousItemOffset(current, previous) {
 
 function previousItem(panelName, parts) {
 	var panel = parts.panels[panelName];
-
 	if (panelName == "a") {
 		var topStackItems = Object.keys(parts.frame['top']).sort();
 		var lastFrameTop = parts.frame['top'][topStackItems[topStackItems.length-1]];
