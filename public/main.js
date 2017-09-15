@@ -211,7 +211,7 @@ function verticallyScale(factor, object) {
     pbparts.forEach(function(part) {
       var mesh     = panel['bottom'][part];
       var box      = meshBox(mesh) 
-        var from     = panelTopMin(panel)-newDLOHeight;
+      var from     = panelTopMin(panel)-newDLOHeight;
       var distance = from-box.max.y;
       mesh.position.y = mesh.position.y+distance;
     });
@@ -220,7 +220,7 @@ function verticallyScale(factor, object) {
     pbparts.forEach(function(part) {
       var mesh           = panel['left'][part];
       var box            = meshBox(mesh) 
-        var ogMesh         = ogPanel['left'][part];
+      var ogMesh         = ogPanel['left'][part];
       var previousOffset = previousItemOffset(ogMesh, ogPrevious);
       var previousBox    = meshBox(previous);
       var box            = meshBox(mesh);
@@ -232,7 +232,7 @@ function verticallyScale(factor, object) {
     pbparts.forEach(function(part) {
       var mesh           = panel['right'][part];
       var box            = meshBox(mesh) 
-        var ogMesh         = ogPanel['right'][part];
+      var ogMesh         = ogPanel['right'][part];
       var previousOffset = previousItemOffset(ogMesh, ogPrevious);
       var previousBox    = meshBox(previous);
       var box            = meshBox(mesh);
