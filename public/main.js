@@ -281,9 +281,9 @@ function verticallyScale(factor, object) {
       var ogMesh         = ogPanel['left'][part];
 			var previousOffset = previousItemOffset(ogMesh, ogPrevious);
       var previousBox    = meshBox(previous);
-      var from           = panelTopMin(panel)-previousOffset;
-      var distance       = from-box.max.y;
-			mesh.position.y    = distance+mesh.position.y;
+      var box            = meshBox(mesh);
+      var distance       = previousBox.min.y-box.max.y-previousOffset;
+			mesh.position.y  = mesh.position.y+distance;
 		});
 
 		var pbparts = Object.keys(panel['right']).sort();
@@ -293,9 +293,9 @@ function verticallyScale(factor, object) {
       var ogMesh         = ogPanel['right'][part];
 			var previousOffset = previousItemOffset(ogMesh, ogPrevious);
       var previousBox    = meshBox(previous);
-      var from           = panelTopMin(panel)-previousOffset;
-      var distance       = from-box.max.y;
-			mesh.position.y    = distance+mesh.position.y;
+      var box            = meshBox(mesh);
+      var distance       = previousBox.min.y-box.max.y-previousOffset;
+			mesh.position.y  = mesh.position.y+distance;
 		});
 	});
 	
