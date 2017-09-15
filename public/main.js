@@ -261,8 +261,8 @@ function verticallyScale(factor, object) {
 			var previousOffset = previousItemOffset(ogMesh, ogPrevious);
       var previousBox    = meshBox(previous);
       var box            = meshBox(mesh);
-      var distance       = previousBox.min.y-box.max.y+previousOffset;
-			mesh.position.y    = mesh.position.y+distance;
+      var distance       = previousBox.min.y-box.max.y-previousOffset;
+			mesh.position.y  = mesh.position.y+distance;
 		});
 		
 		var pbparts = Object.keys(panel['bottom']).sort();
