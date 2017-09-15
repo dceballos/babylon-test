@@ -456,6 +456,7 @@ function init() {
       mesh.geometry.verticesNeedUpdate = true;
     }); 
     model = object;
+    verticallyScale(1, object);
   });
 
 }
