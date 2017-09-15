@@ -63,9 +63,7 @@ window.onload=function(){
     //jamb1.position.x = v1.distanceTo(v2)+10;
     //bead1.position.z = -headOffset;
     //vbead1.position.z = 1;
-		var frameBox = meshBox(object);
-		var parts = meshesAsParts(object);
-		verticallyScale(1.6, parts, frameBox);
+		verticallyScale(1.6, object);
   });
 }
 
@@ -84,21 +82,23 @@ function meshWidth(mesh) {
 	return box.max.x - box.min.x;
 }
 
-function verticallyScale(factor, parts, frameBox) {
+function verticallyScale(factor, object) {
 	// Frame, Rails, Panels
 	// Translate then scale then adjust(translate)
-
-	var ogParts     = Object.assign({}, parts);
-	var frameHeight = frameBox.max.y-frameBox.min.y;	
-	var frameWidth  = frameBox.max.y-frameBox.min.y;
+  var ogObject    = object.clone();
+	var ogFrameBox  = meshBox(ogObject);
+	var parts       = meshesAsParts(object,false);
+	var ogParts     = meshesAsParts(ogObject,true);
+	var ogFrameHeight = ogFrameBox.max.y-ogFrameBox.min.y;	
+	var ogFrameWidth  = ogFrameBox.max.y-ogFrameBox.min.y;
 
 	// Translate frame top parts
 	var ftparts = Object.keys(parts.frame['top']).sort();
 	ftparts.forEach(function(order) {
 		var mesh   = parts.frame['top'][order];
-		var box    = meshBox(mesh);
+    var ogMesh = ogParts.frame['top'][order];
 		var height = meshHeight(mesh);
-		var newPos = (((frameHeight*factor)-frameHeight)/2);
+		var newPos = (((ogFrameHeight*factor)-ogFrameHeight)/2);
 		mesh.position.y = newPos;
 	});
 	
@@ -106,9 +106,7 @@ function verticallyScale(factor, parts, frameBox) {
 	var fbparts = Object.keys(parts.frame['bottom']).sort();
 	fbparts.forEach(function(order) {
 		var mesh   = parts.frame['bottom'][order];
-		var box    = meshBox(mesh);
-		var height = meshHeight(mesh);
-		var newPos = (((frameHeight*factor)-frameHeight)/2);
+		var newPos = (((ogFrameHeight*factor)-ogFrameHeight)/2);
 		mesh.position.y = -newPos;
 	});
 
@@ -122,15 +120,15 @@ function verticallyScale(factor, parts, frameBox) {
 		var height = meshHeight(mesh);
 		var offset = 0;
 
-    if (frameHeight == height+meshHeight(head)+meshHeight(sill)) {
+    if (ogFrameHeight == height+meshHeight(head)+meshHeight(sill)) {
 			offset = meshHeight(head)+meshHeight(sill);
-		}else if (frameHeight == height+meshHeight(head)) {
+		}else if (ogFrameHeight == height+meshHeight(head)) {
 			offset = meshHeight(head)+meshHeight(head);
-		}else if (frameHeight == height+meshHeight(sill)) {
+		}else if (ogFrameHeight == height+meshHeight(sill)) {
 			offset = meshHeight(head)+meshHeight(sill);
 		}
 
-		var newHeight = (frameHeight*factor)-offset;
+		var newHeight = (ogFrameHeight*factor)-offset;
 		var newFactor = newHeight/height;
 		mesh.scale.y  = newFactor;
 
@@ -139,12 +137,11 @@ function verticallyScale(factor, parts, frameBox) {
 		var headBox   = meshBox(head);
 		var ogHeadBox = meshBox(ogHead);
 
-		if (frameBox.max.y == ogHeadBox.max.y) {
-			newPos = headBox.max.y-box.max.y;
-		}else{
+		if (ogFrameBox.max.y == ogHeadBox.max.y) {
 			newPos = headBox.min.y-box.max.y;
+		}else{
+			newPos = headBox.max.y-box.max.y;
 		}
-
 		mesh.position.y = newPos;
 	});
 
@@ -158,15 +155,15 @@ function verticallyScale(factor, parts, frameBox) {
 		var height = meshHeight(mesh);
 		var offset = 0;
 
-    if (frameHeight == height+meshHeight(head)+meshHeight(sill)) {
+    if (ogFrameHeight == height+meshHeight(head)+meshHeight(sill)) {
 			offset = meshHeight(head)+meshHeight(sill);
-		}else if (frameHeight == height+meshHeight(head)) {
+		}else if (ogFrameHeight == height+meshHeight(head)) {
 			offset = meshHeight(head)+meshHeight(head);
-		}else if (frameHeight == height+meshHeight(sill)) {
+		}else if (ogFrameHeight == height+meshHeight(sill)) {
 			offset = meshHeight(head)+meshHeight(sill);
 		}
 
-		var newHeight = (frameHeight*factor)-offset;
+		var newHeight = (ogFrameHeight*factor)-offset;
 		var newFactor = newHeight/height;
 		mesh.scale.y  = newFactor;
 
@@ -175,12 +172,11 @@ function verticallyScale(factor, parts, frameBox) {
 		var headBox   = meshBox(head);
 		var ogHeadBox = meshBox(ogHead);
 
-		if (frameBox.max.y == ogHeadBox.max.y) {
-			newPos = headBox.max.y-box.max.y;
-		}else{
+    if (ogFrameBox.max.y == ogHeadBox.max.y) {
 			newPos = headBox.min.y-box.max.y;
+		}else{
+			newPos = headBox.max.y-box.max.y;
 		}
-
 		mesh.position.y = newPos;
 	});
 
@@ -193,55 +189,79 @@ function verticallyScale(factor, parts, frameBox) {
 
 	// Position panels
 	var panelNames = Object.keys(parts.panels).sort();
-	panelNames.forEach(function(panelName) {
+  var colors     = {"a":"red","b":"blue","c":"green"}
+  var newVerticalFrameOffset = totalVerticalOffset(parts);
+  var ogVerticalFrameOffset = totalVerticalOffset(ogParts);
+  var ogFrameDLO = ogFrameHeight-ogVerticalFrameOffset;
+  var newFrameDLO = meshHeight(object)-newVerticalFrameOffset;
+  console.log(newVerticalFrameOffset, ogVerticalFrameOffset, ogFrameDLO,newFrameDLO); 
+
+	panelNames.forEach(function(panelName, index) {
+    var isFirst       = index == 0 ? true : false;
+    var name          = panelName;
+		var panel         = parts.panels[panelName];
+    var previous      = previousItem(panelName, parts);
 		var ogPanel       = ogParts.panels[panelName];
 		var ogPanelHeight = panelHeight(ogPanel);
-		var panel         = parts.panels[panelName];
-		var previous      = previousItem(panelName, parts, ogParts);
-    var previousBox   = meshBox(previous);
-		
+		var ogPrevious    = previousItem(panelName, ogParts);
+    var ogPreviousBox = meshBox(ogPrevious);
+    var ogDLOHeight   = panelDLOHeight(ogPanel); 
+    var ogDLORatio    = ogDLOHeight/ogFrameDLO;
+    var newDLOHeight  = newFrameDLO*ogDLORatio;
+     
 		// translate top parts
 		var ptparts = Object.keys(panel['top']).sort();
 		ptparts.forEach(function(part) {
-			var mesh   = panel['top'][part];
-			var newPos = ((ogPanelHeight*factor)-ogPanelHeight)/2;
-			mesh.position.y = newPos;
+			var mesh            = panel['top'][part];
+      mesh.material.color = new THREE.Color(colors[panelName]);
+      var newPosition     = (newDLOHeight-ogDLOHeight)/2;
+      mesh.position.y     = newPosition;
 		});
 		
 		// translate bottom parts
 		var pbparts = Object.keys(panel['bottom']).sort();
 		pbparts.forEach(function(part) {
-			var mesh   = panel['bottom'][part];
-			var newPos = ((ogPanelHeight*factor)-ogPanelHeight)/2;
-			mesh.position.y = -newPos;
+			var mesh            = panel['bottom'][part];
+      mesh.material.color = new THREE.Color(colors[panelName]);
+      var newPosition     = (newDLOHeight-ogDLOHeight)/2;
+      mesh.position.y     = -newPosition;
 		});	
 
 		// scale left parts
 		var plparts = Object.keys(panel['left']).sort();
 		plparts.forEach(function(part) {
-			var mesh = panel['left'][part];
-			var currentPanelHeight = panelHeight(panel);
-			var ratio = (currentPanelHeight+(panelOffset(panel)/2))/ogPanelHeight;
-			mesh.scale.y = ratio;
+			var mesh      = panel['left'][part];
+      mesh.material.color = new THREE.Color(colors[panelName]);
+      var ogMesh    = ogPanel['left'][part];
+      var ogLen     = meshHeight(ogMesh);
+      var dlooffset = ogLen-ogDLOHeight;
+      var newLen    = newDLOHeight+dlooffset;
+      var newLenRat = newLen/ogLen;
+			mesh.scale.y  = newLenRat;
 		});
 
 		// scale right parts
 		var plparts = Object.keys(panel['right']).sort();
 		plparts.forEach(function(part) {
-			var mesh = panel['right'][part];
-			var currentPanelHeight = panelHeight(panel);
-			var ratio = (currentPanelHeight+(panelOffset(panel)/2))/ogPanelHeight;
-			mesh.scale.y = ratio;
+      var mesh      = panel['right'][part];
+      mesh.material.color = new THREE.Color(colors[panelName]);
+      var ogMesh    = ogPanel['right'][part];
+      var ogLen     = meshHeight(ogMesh);
+      var dlooffset = ogLen-ogDLOHeight;
+      var newLen    = newDLOHeight+dlooffset;
+      var newLenRat = newLen/ogLen;
+			mesh.scale.y  = newLenRat;
 		});
 
     // reposition top parts
 		var ptparts = Object.keys(panel['top']).sort();
 		ptparts.forEach(function(part) {
-			var mesh   = panel['top'][part];
-      var ogMesh = ogPanel['top'][part];
-			var previousOffset = previousItemOffset(ogMesh, previous);
-      console.log(panelName, previousOffset);
-			//mesh.position.y = previousBox.min.y+previousOffset;
+      var previous       = previousItem(panelName, parts);
+			var mesh           = panel['top'][part];
+      var ogMesh         = ogPanel['top'][part];
+			var previousOffset = previousItemOffset(ogMesh, ogPrevious);
+      var previousBox    = meshBox(previous);
+			//mesh.position.y = (previousBox.min.y-previous.position.y+previousOffset);
 		});
 		
 		var pbparts = Object.keys(panel['bottom']).sort();
@@ -277,25 +297,67 @@ function previousItemOffset(current, previous) {
 	return previousBox.min.y - currentBox.max.y;
 }
 
-function previousItem(panelName, parts, ogParts) {
+function previousItem(panelName, parts) {
 	var panel = parts.panels[panelName];
-	var ogPanel = ogParts.panels[panelName];
 
 	if (panelName == "a") {
-		var topStackItems = Object.keys(ogParts.frame['top']).sort();
-		var lastFrameTop = ogParts.frame['top'][topStackItems[topStackItems.length-1]];
+		var topStackItems = Object.keys(parts.frame['top']).sort();
+		var lastFrameTop = parts.frame['top'][topStackItems[topStackItems.length-1]];
 		return lastFrameTop;
-		//var lastFrameTopBox = meshBox(lastFrameTop);
-		//return lastFrameTopBox.min.y-panelTopMax(panel);
 	}else{
-		var panelNames = Object.keys(ogParts.panels);
+		var panelNames = Object.keys(parts.panels);
 		var currentPanelIndex = panelNames.indexOf(panelName);
 		var prevPanelName = panelNames[currentPanelIndex-1];
-		var prevPanel = ogParts.panels[prevPanelName];
+		var prevPanel = parts.panels[prevPanelName];
 		var bottomStackItems = Object.keys(prevPanel['bottom']).sort();
 		var lastPanelBottom = prevPanel['bottom'][bottomStackItems[bottomStackItems.length-1]];
 		return lastPanelBottom
 	}
+}
+
+function totalVerticalOffset(parts) {
+  // sum of all horizontal part heights
+  var voffset = 0;
+  Object.values(parts.frame['top']).forEach(function(p) {
+    voffset += meshHeight(p);
+  });
+  Object.values(parts.frame['bottom']).forEach(function(p) {
+    voffset += meshHeight(p);
+  });
+  Object.values(parts.rails).forEach(function(p) {
+    voffset += meshHeight(p);
+  });
+  var panelNames = Object.keys(parts.panels).sort();
+  panelNames.forEach(function(panelName) {
+    var panel = parts.panels[panelName];
+    Object.values(panel['top']).forEach(function(p) {
+      voffset += meshHeight(p);
+    });
+    Object.values(panel['bottom']).forEach(function(p) {
+      voffset += meshHeight(p);
+    });
+  });
+  return voffset;
+}
+
+function panelsDLOHeightSum(parts) {
+  var dlosum = 0;
+  var panelNames = Object.keys(parts.panels).sort();
+  panelNames.forEach(function(name) {
+    var panel = parts.panels[name];
+    sum += panelDLOHeight(panel);
+  });
+  return dlosum;
+}
+
+function panelHeightOffset(panel) {
+  var height = panelHeight(panel);
+  var dloheight = panelDLOHeight(panel);
+  return height-dloheight;
+}
+
+function panelDLOHeight(panel) {
+  return panelInnerHeight(panel);
 }
 
 function panelOffset(panel) {
@@ -322,7 +384,7 @@ function panelBottomMax(panel) {
 
 function panelTopMin(panel) {
 	var parts = Object.keys(panel['top']).sort();
-	var box = meshBox(panel['top'][parts[0]])
+	var box = meshBox(panel['top'][parts[parts.length-1]])
 	return box.min.y;
 }
 
@@ -334,11 +396,11 @@ function panelTopMax(panel) {
 
 function panelBottomMin(panel) {
 	var parts = Object.keys(panel['bottom']).sort();
-	var box = meshBox(panel['bottom'][parts[parts.length-1]])
+	var box = meshBox(panel['bottom'][parts[0]])
 	return box.min.y;
 }
 
-function meshesAsParts(object) {
+function meshesAsParts(object, clone) {
 	// ie: Layer_A_Top_1_Glazing_Bead_Fixed__1_ESEL110
 	var parts = {frame:{}, panels:{}, rails:{}};
 	object.children.forEach(function(mesh) {
@@ -350,28 +412,28 @@ function meshesAsParts(object) {
 			var position = meshParts[2];
 			var stackPos = meshParts[3];
 			if (parts[name][position]) {
-				parts[name][position][stackPos] = mesh;
+				parts[name][position][stackPos] = clone ? mesh.clone() : mesh;
 			}else{
 				parts[name][position] = {};
-				parts[name][position][stackPos] = mesh;
+				parts[name][position][stackPos] = clone ? mesh.clone() : mesh;
 			}
 		}else if (name == "rail") {
 			var position = meshParts[2];
-			parts['rails'][position] = mesh;
+			parts['rails'][position] = clone ? mesh.clone() : mesh;
 		}else if (name.length == 1) {
 			var position = meshParts[2];
 			var stackPos = meshParts[3];
 			if (parts['panels'][name]) {
 				if (parts['panels'][name][position]) {
-					parts['panels'][name][position][stackPos] = mesh;
+					parts['panels'][name][position][stackPos] = clone ? mesh.clone() : mesh;
 				}else{
 					parts['panels'][name][position] = {};
-					parts['panels'][name][position][stackPos] = mesh;
+					parts['panels'][name][position][stackPos] = clone ? mesh.clone() : mesh;
 				}
 			}else{
 				parts['panels'][name] = {};
 				parts['panels'][name][position] = {};
-				parts['panels'][name][position][stackPos] = mesh;
+				parts['panels'][name][position][stackPos] = clone ? mesh.clone() : mesh;
 			}
 		}
 	});
