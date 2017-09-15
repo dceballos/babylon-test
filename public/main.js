@@ -1,20 +1,22 @@
 window.onload=function(){
-  threedobj = null;
+  var model = null;
   init();
   animate();
-  var loader = new THREE.OBJLoader();
-  loader.load( 'cactus-3d.obj', function ( object ) {
+}
 
-    scene.add(object);
-    var verticalScale = 1.9;
-    object.children.forEach(function(mesh) {
-      console.log(mesh.name);
-      mesh.geometry.dynamic = true;
-      mesh.geometry.verticesNeedUpdate = true;
-    });
+function scaleModel() {
+  var scaler = document.getElementById("scaler");
+  var value  = (scaler.value/100)+1;
+  var obj    = model.clone();
+  removeEntity(obj.name);
+  scene.add(obj);
+  verticallyScale(value, obj);
+}
 
-		verticallyScale(1.5, object);
-  });
+function removeEntity(name) {
+  var selectedObject = scene.getObjectByName(name);
+  scene.remove(selectedObject);
+  animate();
 }
 
 function meshBox(mesh) {
@@ -255,7 +257,6 @@ function verticallyScale(factor, object) {
     var offset      = panelMin-box.max.y;
     mesh.position.y = offset+mesh.position.y;
 	});
-
 }
 
 function adjacentRailPanel(rail, parts) {
@@ -444,6 +445,19 @@ function init() {
   renderer = new THREE.WebGLRenderer();
   renderer.setSize( window.innerWidth, window.innerHeight );
   container.appendChild( renderer.domElement );
+  
+  var loader = new THREE.OBJLoader();
+  loader.load( 'cactus-3d.obj', function ( object ) {
+    object.name = "esmodel";
+    scene.add(object);
+    object.children.forEach(function(mesh) {
+      console.log(mesh.name);
+      mesh.geometry.dynamic = true;
+      mesh.geometry.verticesNeedUpdate = true;
+    }); 
+    model = object;
+  });
+
 }
 
 function animate() {
