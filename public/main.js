@@ -13,56 +13,6 @@ window.onload=function(){
       mesh.geometry.verticesNeedUpdate = true;
     });
 
-/*
-    var head   = object.getObjectByName("Layer_Frame_Top_1_Head_ESEL101A");
-    var sill   = object.getObjectByName("Layer_Frame_Bottom_1_Sill_ESEL102");
-    var jamb1  = object.getObjectByName("Layer_Frame_Left_1_Jamb_1_ESEL104");
-    var jamb2  = object.getObjectByName("Layer_Frame_Right_1_Jamb_2_ESEL104");
-    var hbead1 = object.getObjectByName("Layer_A_Top_1_Glazing_Bead_Fixed__1_ESEL110");
-    var hbead2 = object.getObjectByName("Layer_A_Bottom_1_Glazing_Bead_Fixed_2_ESEL110");
-    var vbead1 = object.getObjectByName("Layer_A_Left_1_Glazing_Bead_Fixed_1_ESEL110");
-    var vbead2 = object.getObjectByName("Layer_A_Right_1_Glazing_Bead_Fixed_2_ESEL110");
-
-    var jambBox       = new THREE.Box3().setFromObject(jamb1);
-    var jambHeight    = jambBox.max.y - jambBox.min.y;
-    var newJambHeight = jambHeight*verticalScale;
-
-    jamb1.scale.y    = verticalScale;
-    jamb2.scale.y    = verticalScale;
-
-    var jambBoxFinal  = new THREE.Box3().setFromObject(jamb1);
-    var headBoxBefore =  new THREE.Box3().setFromObject(jamb1);
-    var headOffset    = jambBoxFinal.max.y-jambBox.max.y;
-    head.position.y  = headOffset;
-    sill.position.y  = -headOffset;
-
-    var hBead1Box       = new THREE.Box3().setFromObject(hbead1);
-    var hBead2Box       = new THREE.Box3().setFromObject(hbead2);
-    var panelCenterBefore = (hBead1Box.min.y-hBead2Box.max.y)/2;
-    hbead1.position.y   = headOffset;
-    var hBead1BoxAfter  = new THREE.Box3().setFromObject(hbead1);
-    var panelCenter     = (hBead1BoxAfter.min.y-hBead2Box.max.y)/2;
-    console.log(panelCenter,panelCenterBefore);
-
-    var vBead1Box = new THREE.Box3().setFromObject(vbead1);
-    var vBead1Len = vBead1Box.max.y-vBead1Box.min.y;
-    var vBead1LenNew = hBead1BoxAfter.min.y-hBead2Box.max.y;
-    var vBeadScaleFactor = vBead1LenNew/vBead1Len;
-    console.log(vBeadScaleFactor);
-    vbead1.scale.y = vBeadScaleFactor;
-    vbead2.scale.y = vBeadScaleFactor;
-    var vBead1BoxAfter = new THREE.Box3().setFromObject(vbead1);
-    console.log(vBead1Box);
-    vbead1.position.y = -(vBead1BoxAfter.min.y-hBead2Box.max.y);
-    vbead2.position.y = -(vBead1BoxAfter.min.y-hBead2Box.max.y);
-*/
-    //var center1 = jamb1.geometry.center();
-    //var center2 = jamb2.geometry.center();
-    //var v1 = new THREE.Vector3(center1.x, center1.y, center1.z);
-    //var v2 = new THREE.Vector3(center2.x, center2.y, center2.z);
-    //jamb1.position.x = v1.distanceTo(v2)+10;
-    //bead1.position.z = -headOffset;
-    //vbead1.position.z = 1;
 		verticallyScale(1.6, object);
   });
 }
@@ -91,6 +41,8 @@ function verticallyScale(factor, object) {
 	var ogParts     = meshesAsParts(ogObject,true);
 	var ogFrameHeight = ogFrameBox.max.y-ogFrameBox.min.y;	
 	var ogFrameWidth  = ogFrameBox.max.y-ogFrameBox.min.y;
+  var ogVerticalFrameOffset = totalVerticalOffset(ogParts);
+  var ogFrameDLO = ogFrameHeight-ogVerticalFrameOffset;
 
 	// Translate frame top parts
 	var ftparts = Object.keys(parts.frame['top']).sort();
@@ -180,21 +132,26 @@ function verticallyScale(factor, object) {
 		mesh.position.y = newPos;
 	});
 
+  var newFrameHeight = meshHeight(object);
+  var newVerticalFrameOffset = totalVerticalOffset(parts);
+  var newFrameDLO = newFrameHeight-newVerticalFrameOffset;
+
 	// Position rails
 	var rparts = Object.keys(parts.rails).sort();
 	rparts.forEach(function(order) {
-		var mesh     = parts.rails[order];
-		var box      = meshBox(mesh);
+		var mesh       = parts.rails[order];
+		var ogMesh     = ogParts.rails[order];
+		var box        = meshBox(mesh);
+    var ogBox      = meshBox(ogMesh);
+    var posRatio   = ogBox.max.y/ogFrameHeight;
+    var newPos     = posRatio*newFrameHeight;
+    var offset     = box.max.y+newPos;
+    mesh.position.y = offset;
 	});
 
 	// Position panels
 	var panelNames = Object.keys(parts.panels).sort();
   var colors     = {"a":"red","b":"blue","c":"green"}
-  var newVerticalFrameOffset = totalVerticalOffset(parts);
-  var ogVerticalFrameOffset = totalVerticalOffset(ogParts);
-  var ogFrameDLO = ogFrameHeight-ogVerticalFrameOffset;
-  var newFrameDLO = meshHeight(object)-newVerticalFrameOffset;
-  console.log(newVerticalFrameOffset, ogVerticalFrameOffset, ogFrameDLO,newFrameDLO); 
 
 	panelNames.forEach(function(panelName, index) {
     var isFirst       = index == 0 ? true : false;
