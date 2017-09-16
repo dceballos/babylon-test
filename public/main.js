@@ -11,28 +11,6 @@ function scaleModel() {
   var value     = (scaler.value/100)+1;
   var newHeight = originalHeight*value;
   verticalResize(newHeight, model);
-  animate();
-}
-
-function removeEntity(name) {
-  var selectedObject = scene.getObjectByName(name);
-  scene.remove(selectedObject);
-  animate();
-}
-
-function meshBox(mesh) {
-  var box = new THREE.Box3().setFromObject(mesh); 
-  return box;
-}
-
-function meshHeight(mesh) {
-  var box = meshBox(mesh);
-  return box.max.y - box.min.y;
-}
-
-function meshWidth(mesh) {
-  var box = meshBox(mesh);
-  return box.max.x - box.min.x;
 }
 
 function verticalResize(height, object) {
@@ -236,6 +214,21 @@ function verticalResize(height, object) {
     var offset      = panelMin-box.max.y;
     mesh.position.y = offset+mesh.position.y;
   });
+}
+
+function meshBox(mesh) {
+  var box = new THREE.Box3().setFromObject(mesh); 
+  return box;
+}
+
+function meshHeight(mesh) {
+  var box = meshBox(mesh);
+  return box.max.y - box.min.y;
+}
+
+function meshWidth(mesh) {
+  var box = meshBox(mesh);
+  return box.max.x - box.min.x;
 }
 
 function adjacentRailPanel(rail, parts) {
