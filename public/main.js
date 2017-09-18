@@ -245,6 +245,7 @@ function resizeWidth(width, object) {
   var newFrameWidth          = ogFrameWidth*factor;
   var horizontalFrameOffset  = totalWidthOffset(ogParts);
   var newFrameDLO            = newFrameWidth-horizontalFrameOffset;
+  var ogDLOSum               = panelsDLOWidthSum(ogParts);
 
   // Position panels
   var panelNames = Object.keys(parts.panels).sort();
@@ -256,8 +257,9 @@ function resizeWidth(width, object) {
     var ogPanel       = ogParts.panels[panelName];
     var ogPanelWidth  = panelWidth(ogPanel);
     var ogDLOWidth    = panelDLOWidth(ogPanel); 
-    var ogDLORatio    = ogDLOWidth/ogFrameDLO;
+    var ogDLORatio    = 1;
     var newDLOWidth   = newFrameDLO*ogDLORatio;
+		var panelOffset   = ogPanelWidth-ogDLOWidth;
 
     // translate left
     var plparts = Object.keys(panel['left']).sort();
@@ -267,48 +269,45 @@ function resizeWidth(width, object) {
     
     // translate left parts
     plparts.forEach(function(part) {
-      var mesh        = panel['left'][part];
-      var newPosition = (newDLOWidth-ogDLOWidth)/2;
-      mesh.position.x = -newPosition;
-      var color = new THREE.Color(colors[name]);
-      mesh.material.color = color;
+      var mesh      = panel['left'][part];
+      var ogMesh    = ogPanel['left'][part];
+			var ogwidth   = meshWidth(ogMesh);
+			var offset    = ogFrameWidth-ogwidth;
+			var newWidth  = (ogFrameWidth*factor)-offset;
+      mesh.position.x = -newWidth/2;
     });
 
     // translate right parts
     prparts.forEach(function(part) {
       var mesh        = panel['right'][part];
-      var newPosition = (newDLOWidth-ogDLOWidth)/2;
-      mesh.position.x = newPosition;
-      var color = new THREE.Color(colors[name]);
-      mesh.material.color = color;
+      var ogMesh      = ogPanel['right'][part];
+			var ogwidth     = meshWidth(ogMesh);
+			var offset      = ogFrameWidth-ogwidth;
+			var newWidth    = (ogFrameWidth*factor)-offset;
+      mesh.position.x = newWidth/2;
     });
 
     // scale top parts
     ptparts.forEach(function(part) {
       var mesh      = panel['top'][part];
       var ogMesh    = ogPanel['top'][part];
-      var ogLen     = meshWidth(ogMesh);
-      var dlooffset = ogLen-ogDLOWidth;
-      var newLen    = newDLOWidth+dlooffset;
-      var newLenRat = newLen/ogLen;
-      mesh.scale.x  = newLenRat;
-      var color = new THREE.Color(colors[name]);
-      mesh.material.color = color;
+			var ogwidth   = meshWidth(ogMesh);
+			var offset    = ogFrameWidth-ogwidth;
+			var newWidth  = (ogFrameWidth*factor)-offset;
+			var newFactor = newWidth/ogwidth;
+			mesh.scale.x  = newFactor;
     });
 
    // scale bottom parts
     pbparts.forEach(function(part) {
       var mesh      = panel['bottom'][part];
       var ogMesh    = ogPanel['bottom'][part];
-      var ogLen     = meshWidth(ogMesh);
-      var dlooffset = ogLen-ogDLOWidth;
-      var newLen    = newDLOWidth+dlooffset;
-      var newLenRat = newLen/ogLen;
-      mesh.scale.x  = newLenRat;
-      var color = new THREE.Color(colors[name]);
-      mesh.material.color = color;
+			var ogwidth   = meshWidth(ogMesh);
+			var offset    = ogFrameWidth-ogwidth;
+			var newWidth  = (ogFrameWidth*factor)-offset;
+			var newFactor = newWidth/ogwidth;
+			mesh.scale.x  = newFactor;
     });
-
   });
 
   // Scale rail - same as top
@@ -460,7 +459,7 @@ function panelsDLOWidthSum(parts) {
   var panelNames = Object.keys(parts.panels).sort();
   panelNames.forEach(function(name) {
     var panel = parts.panels[name];
-    sum += panelDLOWidth(panel);
+    dlosum += panelDLOWidth(panel);
   });
   return dlosum;
 }
