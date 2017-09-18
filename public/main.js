@@ -37,18 +37,18 @@ function resizeHeight(height, object) {
   // Translate frame top parts
   var ftparts = Object.keys(parts.frame['top']).sort();
   ftparts.forEach(function(order) {
-    var mesh      = parts.frame['top'][order];
-    var newHeight = ogFrameHeight*factor;
-    var newPos    = ((newHeight-ogFrameHeight)/2);
+    var mesh        = parts.frame['top'][order];
+    var newHeight   = ogFrameHeight*factor;
+    var newPos      = ((newHeight-ogFrameHeight)/2);
     mesh.position.y = newPos;
   });
 
   // Translate frame bottom parts
   var fbparts = Object.keys(parts.frame['bottom']).sort();
   fbparts.forEach(function(order) {
-    var mesh   = parts.frame['bottom'][order];
-    var newHeight = ogFrameHeight*factor;
-    var newPos = ((newHeight-ogFrameHeight)/2);
+    var mesh        = parts.frame['bottom'][order];
+    var newHeight   = ogFrameHeight*factor;
+    var newPos      = ((newHeight-ogFrameHeight)/2);
     mesh.position.y = -newPos;
   });
 
@@ -67,8 +67,8 @@ function resizeHeight(height, object) {
   // Scale frame right parts
   var frparts = Object.keys(parts.frame['right']).sort();
   frparts.forEach(function(order) {
-    var mesh   = parts.frame['right'][order];
-    var ogmesh = ogParts.frame['right'][order];
+    var mesh      = parts.frame['right'][order];
+    var ogmesh    = ogParts.frame['right'][order];
     var ogheight  = meshHeight(ogmesh);
 		var offset    = ogFrameHeight-ogheight;
     var newHeight = ogFrameHeight*factor;
@@ -76,10 +76,10 @@ function resizeHeight(height, object) {
     mesh.scale.y  = newFactor;
   });
 
-  var newFrameHeight         = ogFrameHeight*factor;
-  var verticalFrameOffset    = totalHeightOffset(parts);
-  var ogDLOSum               = panelsDLOHeightSum(ogParts);
-  var newFrameDLO            = newFrameHeight-verticalFrameOffset;
+  var newFrameHeight      = ogFrameHeight*factor;
+  var verticalFrameOffset = totalHeightOffset(parts);
+  var ogDLOSum            = panelsDLOHeightSum(ogParts);
+  var newFrameDLO         = newFrameHeight-verticalFrameOffset;
 
   // Position panels
   var panelNames = Object.keys(parts.panels).sort();
@@ -269,11 +269,11 @@ function resizeWidth(width, object) {
     
     // translate left parts
     plparts.forEach(function(part) {
-      var mesh      = panel['left'][part];
-      var ogMesh    = ogPanel['left'][part];
-			var ogwidth   = meshWidth(ogMesh);
-			var offset    = ogFrameWidth-ogwidth;
-			var newWidth  = (ogFrameWidth*factor)-offset;
+      var mesh        = panel['left'][part];
+      var ogMesh      = ogPanel['left'][part];
+			var ogwidth     = meshWidth(ogMesh);
+			var offset      = ogFrameWidth-ogwidth;
+			var newWidth    = (ogFrameWidth*factor)-offset;
       mesh.position.x = -newWidth/2;
     });
 
