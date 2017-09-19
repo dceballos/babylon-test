@@ -104,7 +104,7 @@ function resizeHeight(height, object) {
       var ogMesh      = ogPanel['top'][part];
       var ogPrevDist  = previousItemTopOffset(ogMesh, ogPrevious);
       var box         = meshBox(ogMesh) 
-        var from        = meshBox(previous).min.y-ogPrevDist;
+      var from        = meshBox(previous).min.y-ogPrevDist;
       var distance    = from-box.max.y;
       mesh.position.y = distance
     });
@@ -115,7 +115,7 @@ function resizeHeight(height, object) {
       var mesh        = panel['bottom'][part];
       var ogMesh      = ogPanel['bottom'][part];
       var box         = meshBox(ogMesh) 
-        var from        = panelTopMin(panel)-newDLOHeight;
+      var from        = panelTopMin(panel)-newDLOHeight;
       var distance    = from-box.max.y;
       mesh.position.y = distance;
     });	
@@ -151,7 +151,7 @@ function resizeHeight(height, object) {
       var mesh           = panel['left'][part];
       var ogMesh         = ogPanel['left'][part];
       var box            = meshBox(mesh) 
-        var previousOffset = previousItemTopOffset(ogMesh, ogPrevious);
+      var previousOffset = previousItemTopOffset(ogMesh, ogPrevious);
       var previousBox    = meshBox(previous);
       var distance       = previousBox.min.y-box.max.y-previousOffset;
       mesh.position.y    = mesh.position.y+distance;
@@ -161,7 +161,7 @@ function resizeHeight(height, object) {
     pbparts.forEach(function(part) {
       var mesh           = panel['right'][part];
       var box            = meshBox(mesh) 
-        var ogMesh         = ogPanel['right'][part];
+      var ogMesh         = ogPanel['right'][part];
       var previousOffset = previousItemTopOffset(ogMesh, ogPrevious);
       var previousBox    = meshBox(previous);
       var box            = meshBox(mesh);
@@ -509,49 +509,49 @@ function panelWidth(panel) {
 function panelBottomMax(panel) {
   var parts = Object.keys(panel['bottom']).sort();
   var box = meshBox(panel['bottom'][parts[parts.length-1]])
-    return box.max.y;
+  return box.max.y;
 }
 
 function panelTopMin(panel) {
   var parts = Object.keys(panel['top']).sort();
   var box = meshBox(panel['top'][parts[parts.length-1]])
-    return box.min.y;
+  return box.min.y;
 }
 
 function panelTopMax(panel) {
   var parts = Object.keys(panel['top']).sort();
   var box = meshBox(panel['top'][parts[0]])
-    return box.max.y;
+  return box.max.y;
 }
 
 function panelBottomMin(panel) {
   var parts = Object.keys(panel['bottom']).sort();
   var box = meshBox(panel['bottom'][parts[0]])
-    return box.min.y;
+  return box.min.y;
 }
 
 function panelRightMax(panel) {
   var parts = Object.keys(panel['right']).sort();
   var box = meshBox(panel['right'][parts[0]])
-    return box.max.x;
+  return box.max.x;
 }
 
 function panelLeftMin(panel) {
   var parts = Object.keys(panel['left']).sort();
   var box = meshBox(panel['left'][parts[0]])
-    return box.min.x;
+  return box.min.x;
 }
 
 function panelLeftMax(panel) {
   var parts = Object.keys(panel['left']).sort();
   var box = meshBox(panel['left'][parts[parts.length-1]])
-    return box.max.x;
+  return box.max.x;
 }
 
 function panelRightMin(panel) {
   var parts = Object.keys(panel['right']).sort();
   var box = meshBox(panel['right'][parts[parts.length-1]])
-    return box.min.x;
+  return box.min.x;
 }
 
 function meshesAsParts(object, clone) {
