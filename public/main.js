@@ -5,6 +5,7 @@ window.onload=function(){
   ogmodel = null;
   originalHeight = null;
   originalWidth  = null;
+  current_mesh = null;
   appendInfo();
   appendMeshInfo();
   init();
@@ -188,6 +189,7 @@ function resizeHeight(height, object) {
   });
 
   updateInfo();
+  updateMeshInfo(current_mesh);
 }
 
 function resizeWidth(width, object) {
@@ -327,6 +329,7 @@ function resizeWidth(width, object) {
   });
 
   updateInfo();
+  updateMeshInfo(current_mesh);
 }
 
 function meshBox(mesh) {
@@ -658,7 +661,10 @@ function init() {
       mesh.geometry.verticesNeedUpdate = true;
       mesh.callback = function() { 
         updateMeshInfo(mesh);
-        console.log( this.name );
+        selectColor(mesh);
+        mesh.geometry.dynamic = true;
+        mesh.geometry.verticesNeedUpdate = true;
+        current_mesh = mesh;
       }
     }); 
     model   = object;
@@ -745,6 +751,7 @@ function updateInfo() {
 }
 
 function updateMeshInfo(mesh) {
+  console.log(mesh.name);
   var parts = meshPartsFromName(mesh);
   var type = parts[1];
   var ref = parts[parts.length-1];
@@ -756,7 +763,7 @@ function updateMeshInfo(mesh) {
   if (type == "frame") {
     position = parts[2];
     stackPos = parts[3];
-    name = parts.slice(4,parts.length-2).join(" ");
+    name = parts.slice(4,parts.length-1).join(" ");
   }else if (type == "rail") {
     position = "top";
     name = parts.slice(3,parts.length-1).join(" ");
@@ -773,5 +780,12 @@ function updateMeshInfo(mesh) {
   }
 
   meshInfo.innerHTML = name+"<br/>ES Part #: "+ref+"<br/>Length: "+length;
+}
+
+function selectColor(mesh) {
+  model.children.forEach(function(c) {
+    c.material.color = new THREE.Color( 1, 1, 1);
+  });
+  mesh.material.color = new THREE.Color( 'skyblue' );
 }
 
