@@ -634,7 +634,7 @@ function init() {
   container.appendChild( renderer.domElement );
 
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-  camera.position.z = 200;
+  camera.position.z = 150;
 
   controls = new THREE.TrackballControls( camera );
   controls.rotateSpeed = 3.0;
