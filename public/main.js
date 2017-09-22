@@ -636,15 +636,17 @@ function init() {
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
   camera.position.z = 150;
 
-  controls = new THREE.TrackballControls( camera );
-  controls.rotateSpeed = 3.0;
-  controls.zoomSpeed = 7.0;
-  controls.panSpeed = 3.0;
-  controls.noZoom = false;
-  controls.noRotate = true;
-  controls.noPan = true;
-  controls.staticMoving = true;
-  controls.dynamicDampingFactor = 0;
+  controls = new THREE.OrbitControls( camera );
+  controls.rotateSpeed = 0.5;
+  controls.zoomSpeed = 0.5;
+  controls.panSpeed = 0.5;
+  controls.enableZoom = true;
+  controls.enableRotate = true;
+  controls.enablePan = true;
+  controls.enableDamping = false;
+  controls.minPolarAngle = Math.PI/2;
+  controls.maxPolarAngle = Math.PI/2;
+  controls.dampingFactor = 10;
 
   scene = new THREE.Scene();
 
