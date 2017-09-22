@@ -718,6 +718,11 @@ function canvasClick( event ) {
   if ( intersects.length > 0 ) {
     intersects[0].object.callback();
   }
+
+  if (intersects.length == 0) {
+    clearAllColors();
+    clearMeshInfo();
+  }
 }
 
 function appendTitle() {
@@ -801,10 +806,18 @@ function updateMeshInfo(mesh) {
   meshInfo.innerHTML = name.toUpperCase()+"<br/>ES Part #: "+ref.toUpperCase()+"<br/>Length: "+display_in_inches(length);
 }
 
-function selectColor(mesh) {
+function clearMeshInfo() {
+  meshInfo.innerHTML = "";
+}
+
+function clearAllColors() {
   model.children.forEach(function(c) {
     c.material.color = new THREE.Color( 1, 1, 1);
   });
+}
+
+function selectColor(mesh) {
+  clearAllColors(); 
   mesh.material.color = new THREE.Color( 'skyblue' );
 }
 
