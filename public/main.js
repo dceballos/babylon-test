@@ -747,7 +747,7 @@ function appendMeshInfo() {
 }
 
 function updateInfo() {
-  info.innerHTML = "Width: "+meshWidth(model)+" Height: "+meshHeight(model);
+  info.innerHTML = "Width: "+display_in_inches(meshWidth(model))+" Height: "+display_in_inches(meshHeight(model));
 }
 
 function updateMeshInfo(mesh) {
@@ -779,7 +779,7 @@ function updateMeshInfo(mesh) {
     length = meshHeight(mesh);
   }
 
-  meshInfo.innerHTML = name+"<br/>ES Part #: "+ref+"<br/>Length: "+length;
+  meshInfo.innerHTML = name+"<br/>ES Part #: "+ref+"<br/>Length: "+display_in_inches(length);
 }
 
 function selectColor(mesh) {
@@ -787,5 +787,20 @@ function selectColor(mesh) {
     c.material.color = new THREE.Color( 1, 1, 1);
   });
   mesh.material.color = new THREE.Color( 'skyblue' );
+}
+
+function display_in_inches(num) {
+  var remainder = num % 1;
+  var fraction = new Fraction(remainder);
+  if (remainder == 0) {
+    return num;
+  }
+  return Math.floor(num) + " " + round_to_sixteenth(remainder) + "\"";
+}
+
+function round_to_sixteenth(fraction) {
+  var round = (Math.round(fraction * 16) / 16.0);
+  var fraction = new Fraction(round);
+  return fraction.numerator + "/" + fraction.denominator;
 }
 
