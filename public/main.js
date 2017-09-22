@@ -105,8 +105,8 @@ function resizeHeight(height, object) {
       var ogPrevDist  = previousItemTopOffset(ogMesh, ogPrevious);
       var box         = meshBox(ogMesh) 
       var from        = meshBox(previous).min.y-ogPrevDist;
-      var distance    = from-box.max.y;
-      mesh.position.y = distance
+    var distance    = from-box.max.y;
+    mesh.position.y = distance
     });
 
     // translate bottom parts
@@ -116,8 +116,8 @@ function resizeHeight(height, object) {
       var ogMesh      = ogPanel['bottom'][part];
       var box         = meshBox(ogMesh) 
       var from        = panelTopMin(panel)-newDLOHeight;
-      var distance    = from-box.max.y;
-      mesh.position.y = distance;
+    var distance    = from-box.max.y;
+    mesh.position.y = distance;
     });	
 
     // scale left parts
@@ -152,9 +152,9 @@ function resizeHeight(height, object) {
       var ogMesh         = ogPanel['left'][part];
       var box            = meshBox(mesh) 
       var previousOffset = previousItemTopOffset(ogMesh, ogPrevious);
-      var previousBox    = meshBox(previous);
-      var distance       = previousBox.min.y-box.max.y-previousOffset;
-      mesh.position.y    = mesh.position.y+distance;
+    var previousBox    = meshBox(previous);
+    var distance       = previousBox.min.y-box.max.y-previousOffset;
+    mesh.position.y    = mesh.position.y+distance;
     });
 
     var pbparts = Object.keys(panel['right']).sort();
@@ -162,11 +162,11 @@ function resizeHeight(height, object) {
       var mesh           = panel['right'][part];
       var box            = meshBox(mesh) 
       var ogMesh         = ogPanel['right'][part];
-      var previousOffset = previousItemTopOffset(ogMesh, ogPrevious);
-      var previousBox    = meshBox(previous);
-      var box            = meshBox(mesh);
-      var distance       = previousBox.min.y-box.max.y-previousOffset;
-      mesh.position.y    = mesh.position.y+distance;
+    var previousOffset = previousItemTopOffset(ogMesh, ogPrevious);
+    var previousBox    = meshBox(previous);
+    var box            = meshBox(mesh);
+    var distance       = previousBox.min.y-box.max.y-previousOffset;
+    mesh.position.y    = mesh.position.y+distance;
     });
   });
 
@@ -509,49 +509,49 @@ function panelWidth(panel) {
 function panelBottomMax(panel) {
   var parts = Object.keys(panel['bottom']).sort();
   var box = meshBox(panel['bottom'][parts[parts.length-1]])
-  return box.max.y;
+    return box.max.y;
 }
 
 function panelTopMin(panel) {
   var parts = Object.keys(panel['top']).sort();
   var box = meshBox(panel['top'][parts[parts.length-1]])
-  return box.min.y;
+    return box.min.y;
 }
 
 function panelTopMax(panel) {
   var parts = Object.keys(panel['top']).sort();
   var box = meshBox(panel['top'][parts[0]])
-  return box.max.y;
+    return box.max.y;
 }
 
 function panelBottomMin(panel) {
   var parts = Object.keys(panel['bottom']).sort();
   var box = meshBox(panel['bottom'][parts[0]])
-  return box.min.y;
+    return box.min.y;
 }
 
 function panelRightMax(panel) {
   var parts = Object.keys(panel['right']).sort();
   var box = meshBox(panel['right'][parts[0]])
-  return box.max.x;
+    return box.max.x;
 }
 
 function panelLeftMin(panel) {
   var parts = Object.keys(panel['left']).sort();
   var box = meshBox(panel['left'][parts[0]])
-  return box.min.x;
+    return box.min.x;
 }
 
 function panelLeftMax(panel) {
   var parts = Object.keys(panel['left']).sort();
   var box = meshBox(panel['left'][parts[parts.length-1]])
-  return box.max.x;
+    return box.max.x;
 }
 
 function panelRightMin(panel) {
   var parts = Object.keys(panel['right']).sort();
   var box = meshBox(panel['right'][parts[parts.length-1]])
-  return box.min.x;
+    return box.min.x;
 }
 
 function meshesAsParts(object, clone) {
@@ -609,9 +609,25 @@ function updateGeometry(jamb1) {
 }
 
 function init() {
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize( window.innerWidth, window.innerHeight );
+
   container = document.getElementById( 'container' );
+  container.appendChild( renderer.domElement );
+
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
   camera.position.z = 200;
+
+  controls = new THREE.TrackballControls( camera );
+  controls.rotateSpeed = 3.0;
+  controls.zoomSpeed = 7.0;
+  controls.panSpeed = 3.0;
+  controls.noZoom = false;
+  controls.noRotate = true;
+  controls.noPan = true;
+  controls.staticMoving = true;
+  controls.dynamicDampingFactor = 0;
+
   scene = new THREE.Scene();
 
   var ambient = new THREE.AmbientLight( 0x101030 );
@@ -621,22 +637,14 @@ function init() {
   directionalLight.position.set( 0, 0, 1 );
   scene.add( directionalLight );
 
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize( window.innerWidth, window.innerHeight );
-  container.appendChild( renderer.domElement );
-
   var loader = new THREE.OBJLoader();
   loader.load( 'cactus-3d.obj', function ( object ) {
     object.name = "esmodel";
     object.children.forEach(function(mesh) {
       mesh.geometry.dynamic = true;
       mesh.geometry.verticesNeedUpdate = true;
+      mesh.callback = function() { console.log( this.name ); }
     }); 
-    var box = new THREE.Box3().setFromObject( object );
-    //box.center( object.position ); // this re-sets the mesh position
-    //object.position.multiplyScalar( - 1 );
-    //var axis = new THREE.AxisHelper(20);
-    //object.add(axis);
     model   = object;
     ogmodel = object.clone();
     originalHeight = meshHeight(ogmodel);
@@ -644,6 +652,21 @@ function init() {
     scene.add(object);
   });
 
+  document.getElementById("container").addEventListener("mousedown", function(event) {
+    canvasClick(event);
+  });
+  document.getElementById("hscaler").addEventListener("mousedown", function() {
+    controls.enabled = false;
+  });
+  document.getElementById("hscaler").addEventListener("mouseup", function() {
+    controls.enabled = true;
+  });
+  document.getElementById("wscaler").addEventListener("mousedown", function() {
+    controls.enabled = false;
+  });
+  document.getElementById("wscaler").addEventListener("mouseup", function() {
+    controls.enabled = true;
+  });
 }
 
 function animate() {
@@ -652,5 +675,22 @@ function animate() {
 }
 
 function render() {
+  controls.update();
   renderer.render( scene, camera );
+}
+
+function canvasClick( event ) {
+  event.preventDefault();
+  var mouse = new THREE.Vector2();
+  var raycaster = new THREE.Raycaster();
+
+  var rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ( ( event.clientX - rect.left ) / rect.width ) * 2 - 1;
+  mouse.y = - ( ( event.clientY - rect.top ) / rect.height ) * 2 + 1;
+
+  raycaster.setFromCamera( mouse, camera );
+  var intersects = raycaster.intersectObjects(model.children); 
+  if ( intersects.length > 0 ) {
+    intersects[0].object.callback();
+  }
 }
