@@ -1,4 +1,5 @@
 window.onload=function(){
+  title = document.createElement('div');
   info = document.createElement('div');
   meshInfo = document.createElement('div');
   model   = null;
@@ -6,6 +7,7 @@ window.onload=function(){
   originalHeight = null;
   originalWidth  = null;
   current_mesh = null;
+  appendTitle();
   appendInfo();
   appendMeshInfo();
   init();
@@ -718,13 +720,29 @@ function canvasClick( event ) {
   }
 }
 
+function appendTitle() {
+  title.style.position = 'absolute';
+  title.style.top = '30px';
+  title.style.width = '100%';
+  title.style.textAlign = 'center';
+  title.style.color = '#fff';
+  title.style.fontWeight = 'bold';
+  title.style.fontSize = '18px';
+  title.style.backgroundColor = 'transparent';
+  title.style.zIndex = '1';
+  title.style.fontFamily = 'Monospace';
+  title.innerHTML = "ES-100";
+  document.body.appendChild(title);
+}
+
 function appendInfo() {
   info.style.position = 'absolute';
-  info.style.top = '30px';
+  info.style.top = '60px';
   info.style.width = '100%';
   info.style.textAlign = 'center';
   info.style.color = '#fff';
   info.style.fontWeight = 'bold';
+  info.style.fontSize = '18px';
   info.style.backgroundColor = 'transparent';
   info.style.zIndex = '1';
   info.style.fontFamily = 'Monospace';
@@ -734,11 +752,12 @@ function appendInfo() {
 
 function appendMeshInfo() {
   meshInfo.style.position = 'absolute';
-  meshInfo.style.top = '60px';
+  meshInfo.style.top = '90px';
   meshInfo.style.width = '100%';
   meshInfo.style.textAlign = 'center';
   meshInfo.style.color = '#fff';
   meshInfo.style.fontWeight = 'bold';
+  meshInfo.style.fontSize = '18px';
   meshInfo.style.backgroundColor = 'transparent';
   meshInfo.style.zIndex = '1';
   meshInfo.style.fontFamily = 'Monospace';
@@ -779,7 +798,7 @@ function updateMeshInfo(mesh) {
     length = meshHeight(mesh);
   }
 
-  meshInfo.innerHTML = name+"<br/>ES Part #: "+ref.toUpperCase()+"<br/>Length: "+display_in_inches(length);
+  meshInfo.innerHTML = name.toUpperCase()+"<br/>ES Part #: "+ref.toUpperCase()+"<br/>Length: "+display_in_inches(length);
 }
 
 function selectColor(mesh) {
