@@ -1,8 +1,12 @@
 window.onload=function(){
+  info = document.createElement('div');
+  meshInfo = document.createElement('div');
   model   = null;
   ogmodel = null;
   originalHeight = null;
   originalWidth  = null;
+  appendInfo();
+  appendMeshInfo();
   init();
   animate();
 }
@@ -182,6 +186,8 @@ function resizeHeight(height, object) {
     var offset      = panelMin-box.max.y;
     mesh.position.y = offset+mesh.position.y;
   });
+
+  updateInfo();
 }
 
 function resizeWidth(width, object) {
@@ -319,6 +325,8 @@ function resizeWidth(width, object) {
     var newFactor = newWidth/ogwidth;
     mesh.scale.x  = newFactor;
   });
+
+  updateInfo();
 }
 
 function meshBox(mesh) {
@@ -554,13 +562,18 @@ function panelRightMin(panel) {
     return box.min.x;
 }
 
+function meshPartsFromName(mesh) {
+  var meshParts = mesh.name.split("_").map(function(m) {
+    return m.toLowerCase();	
+  });
+  return meshParts;
+}
+
 function meshesAsParts(object, clone) {
   // ie: Layer_A_Top_1_Glazing_Bead_Fixed__1_ESEL110
   var parts = {frame:{}, panels:{}, rails:{}};
   object.children.forEach(function(mesh) {
-    var meshParts = mesh.name.split("_").map(function(m) {
-      return m.toLowerCase();	
-    });
+    var meshParts = meshPartsFromName(mesh);
     var name = meshParts[1];
     if (name == "frame") {
       var position = meshParts[2];
@@ -643,13 +656,17 @@ function init() {
     object.children.forEach(function(mesh) {
       mesh.geometry.dynamic = true;
       mesh.geometry.verticesNeedUpdate = true;
-      mesh.callback = function() { console.log( this.name ); }
+      mesh.callback = function() { 
+        updateMeshInfo(mesh);
+        console.log( this.name );
+      }
     }); 
     model   = object;
     ogmodel = object.clone();
     originalHeight = meshHeight(ogmodel);
     originalWidth  = meshWidth(ogmodel);
     scene.add(object);
+    updateInfo();
   });
 
   document.getElementById("container").addEventListener("mousedown", function(event) {
@@ -694,3 +711,67 @@ function canvasClick( event ) {
     intersects[0].object.callback();
   }
 }
+
+function appendInfo() {
+  info.style.position = 'absolute';
+  info.style.top = '30px';
+  info.style.width = '100%';
+  info.style.textAlign = 'center';
+  info.style.color = '#fff';
+  info.style.fontWeight = 'bold';
+  info.style.backgroundColor = 'transparent';
+  info.style.zIndex = '1';
+  info.style.fontFamily = 'Monospace';
+  info.innerHTML = "";
+  document.body.appendChild(info);
+}
+
+function appendMeshInfo() {
+  meshInfo.style.position = 'absolute';
+  meshInfo.style.top = '60px';
+  meshInfo.style.width = '100%';
+  meshInfo.style.textAlign = 'center';
+  meshInfo.style.color = '#fff';
+  meshInfo.style.fontWeight = 'bold';
+  meshInfo.style.backgroundColor = 'transparent';
+  meshInfo.style.zIndex = '1';
+  meshInfo.style.fontFamily = 'Monospace';
+  meshInfo.innerHTML = "";
+  document.body.appendChild(meshInfo);
+}
+
+function updateInfo() {
+  info.innerHTML = "Width: "+meshWidth(model)+" Height: "+meshHeight(model);
+}
+
+function updateMeshInfo(mesh) {
+  var parts = meshPartsFromName(mesh);
+  var type = parts[1];
+  var ref = parts[parts.length-1];
+  var name;
+  var position;
+  var stackPos;
+  var length;
+
+  if (type == "frame") {
+    position = parts[2];
+    stackPos = parts[3];
+    name = parts.slice(4,parts.length-2).join(" ");
+  }else if (type == "rail") {
+    position = "top";
+    name = parts.slice(3,parts.length-1).join(" ");
+  }else if (type.length == 1) {
+    position = parts[2];
+    stackPos = parts[3];
+    name = parts.slice(4,parts.length-2).join(" ");
+  }
+
+  if (position == "top" || position == "bottom") {
+    length = meshWidth(mesh);
+  }else{
+    length = meshHeight(mesh);
+  }
+
+  meshInfo.innerHTML = name+"<br/>ES Part #: "+ref+"<br/>Length: "+length;
+}
+
