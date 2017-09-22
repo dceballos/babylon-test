@@ -779,7 +779,7 @@ function updateMeshInfo(mesh) {
     length = meshHeight(mesh);
   }
 
-  meshInfo.innerHTML = name+"<br/>ES Part #: "+ref+"<br/>Length: "+display_in_inches(length);
+  meshInfo.innerHTML = name+"<br/>ES Part #: "+ref.toUpperCase()+"<br/>Length: "+display_in_inches(length);
 }
 
 function selectColor(mesh) {
