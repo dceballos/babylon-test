@@ -314,22 +314,16 @@ function resizeWidth(width, object) {
     // TODO: Change this to be translated by center difference
     plparts.forEach(function(part) {
       var mesh        = panel['left'][part];
-      var ogmesh      = ogPanel['left'][part];
-      var ogwidth     = meshwidth(ogmesh);
-      var offset      = ogframewidth-ogwidth;
-      var newwidth    = (ogframewidth*factor)-offset;
-      mesh.position.x = -newwidth/2;
+      var width       = meshwidth(mesh);
+      mesh.position.x = -((newDLOWidth-ogDLOWidth)/2+width);
     });
 
     // translate right parts
     // TODO: Change this to be translated by center difference
     prparts.forEach(function(part) {
       var mesh        = panel['right'][part];
-      var ogmesh      = ogPanel['right'][part];
-      var ogwidth     = meshwidth(ogmesh);
-      var offset      = ogframewidth-ogwidth;
-      var newwidth    = (ogframewidth*factor)-offset;
-      mesh.position.x = newwidth/2;
+      var width       = meshwidth(mesh);
+      mesh.position.x = (newDLOWidth-ogDLOWidth)/2+width;
     });
 
     // scale top parts
