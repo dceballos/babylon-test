@@ -220,7 +220,7 @@ function resizeHeight(height, object) {
 
     // Offset between centers
     var newpos          = center-ogcenter
-    mesh.position.y = newpos;
+    mesh.position.y     = newpos;
   });
 
   updateInfo();
@@ -311,6 +311,7 @@ function resizeWidth(width, object) {
     var pbparts = Object.keys(panel['bottom']).sort();
 
     // translate left parts
+    // Note: Change this to be translated by center difference
     plparts.forEach(function(part) {
       var mesh        = panel['left'][part];
       var ogmesh      = ogPanel['left'][part];
@@ -321,6 +322,7 @@ function resizeWidth(width, object) {
     });
 
     // translate right parts
+    // Note: Change this to be translated by center difference
     prparts.forEach(function(part) {
       var mesh        = panel['right'][part];
       var ogmesh      = ogPanel['right'][part];
@@ -567,49 +569,49 @@ function panelWidth(panel) {
 function panelBottomMax(panel) {
   var parts = Object.keys(panel['bottom']).sort();
   var box = meshBox(panel['bottom'][parts[parts.length-1]])
-    return box.max.y;
+  return box.max.y;
 }
 
 function panelTopMin(panel) {
   var parts = Object.keys(panel['top']).sort();
   var box = meshBox(panel['top'][parts[parts.length-1]])
-    return box.min.y;
+  return box.min.y;
 }
 
 function panelTopMax(panel) {
   var parts = Object.keys(panel['top']).sort();
   var box = meshBox(panel['top'][parts[0]])
-    return box.max.y;
+  return box.max.y;
 }
 
 function panelBottomMin(panel) {
   var parts = Object.keys(panel['bottom']).sort();
   var box = meshBox(panel['bottom'][parts[0]])
-    return box.min.y;
+  return box.min.y;
 }
 
 function panelRightMax(panel) {
   var parts = Object.keys(panel['right']).sort();
   var box = meshBox(panel['right'][parts[0]])
-    return box.max.x;
+  return box.max.x;
 }
 
 function panelLeftMin(panel) {
   var parts = Object.keys(panel['left']).sort();
   var box = meshBox(panel['left'][parts[0]])
-    return box.min.x;
+  return box.min.x;
 }
 
 function panelLeftMax(panel) {
   var parts = Object.keys(panel['left']).sort();
   var box = meshBox(panel['left'][parts[parts.length-1]])
-    return box.max.x;
+  return box.max.x;
 }
 
 function panelRightMin(panel) {
   var parts = Object.keys(panel['right']).sort();
   var box = meshBox(panel['right'][parts[parts.length-1]])
-    return box.min.x;
+  return box.min.x;
 }
 
 function meshPartsFromName(mesh) {
