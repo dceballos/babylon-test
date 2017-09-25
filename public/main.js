@@ -311,7 +311,7 @@ function resizeWidth(width, object) {
     var pbparts = Object.keys(panel['bottom']).sort();
 
     // translate left parts
-    // Note: Change this to be translated by center difference
+    // TODO: Change this to be translated by center difference
     plparts.forEach(function(part) {
       var mesh        = panel['left'][part];
       var ogmesh      = ogPanel['left'][part];
@@ -322,7 +322,7 @@ function resizeWidth(width, object) {
     });
 
     // translate right parts
-    // Note: Change this to be translated by center difference
+    // TODO: Change this to be translated by center difference
     prparts.forEach(function(part) {
       var mesh        = panel['right'][part];
       var ogmesh      = ogPanel['right'][part];
@@ -668,18 +668,15 @@ function resize() {
 }
 
 function init() {
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize( window.innerWidth, window.innerHeight );
-
   container = document.getElementById( 'container' );
+  scene     = new THREE.Scene();
+  renderer  = new THREE.WebGLRenderer();
+  camera    = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+  renderer.setSize( window.innerWidth, window.innerHeight );
   container.appendChild( renderer.domElement );
-
-  camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
   camera.position.z = 150;
   
   loadControls();
-
-  scene = new THREE.Scene();
 
   var ambient = new THREE.AmbientLight( 0x101030 );
   scene.add( ambient );
