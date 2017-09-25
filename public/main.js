@@ -59,7 +59,7 @@ function resizeHeight(height, object) {
   var ogparts               = meshesAsParts(ogobject,true);
   var ogframeheight         = ogframebox.max.y-ogframebox.min.y;	
   var ogframewidth          = ogframebox.max.y-ogframebox.min.y;
-  var ogverticalframeoffset = ogframeheight-panelsDLOHeightSum(ogparts);
+  var ogverticalframeoffset = ogframeheight-panelsdloheightsum(ogparts);
   var ogframedlo            = ogframeheight-ogverticalframeoffset;
 
   // Translate frame top parts
@@ -107,8 +107,8 @@ function resizeHeight(height, object) {
   });
 
   var newFrameHeight      = ogframeheight*factor;
-  var verticalFrameOffset = totalHeightOffset(parts);
-  var ogDLOSum            = panelsDLOHeightSum(ogparts);
+  var verticalFrameOffset = totalheightoffset(parts);
+  var ogDLOSum            = panelsdloheightsum(ogparts);
   var newframedlo         = newFrameHeight-verticalFrameOffset;
 
   // Position panels
@@ -289,7 +289,7 @@ function resizeWidth(width, object) {
   var newframewidth          = ogframewidth*factor;
   var horizontalframeoffset  = totalwidthoffset(ogparts);
   var newframedlo            = newframewidth-horizontalframeoffset;
-  var ogDLOSum               = panelsDLOWidthSum(ogparts);
+  var ogDLOSum               = panelsdlowidthsum(ogparts);
 
   // Position panels
   var panelnames = Object.keys(parts.panels).sort();
@@ -334,14 +334,14 @@ function resizeWidth(width, object) {
 
     // scale top parts
     ptparts.forEach(function(part) {
-      var mesh      = panel['top'][part];
-      var ogmesh    = ogPanel['top'][part];
-      var ogwidth   = meshwidth(ogmesh);
-      var offset    = ogframewidth-ogwidth;
-      var newwidth  = (ogframewidth*factor)-offset;
+      var mesh        = panel['top'][part];
+      var ogmesh      = ogPanel['top'][part];
+      var ogwidth     = meshwidth(ogmesh);
+      var offset      = ogframewidth-ogwidth;
+      var newwidth    = (ogframewidth*factor)-offset;
       var lenToResize = newwidth-ogwidth;
-      var newGeo    = stretch(ogmesh.geometry, lenToResize, 'x');
-      mesh.geometry = newGeo;
+      var newGeo      = stretch(ogmesh.geometry, lenToResize, 'x');
+      mesh.geometry   = newGeo;
     });
 
     // scale bottom parts
@@ -441,13 +441,13 @@ function previousVerticalPanelItem(panelname, parts) {
 
 function previousverticalpanelLeftitem(panelname, parts) {
   var topStackItems = Object.keys(parts.frame['left']).sort();
-  var lastFrameTop = parts.frame['left'][topStackItems[topStackItems.length-1]];
+  var lastFrameTop  = parts.frame['left'][topStackItems[topStackItems.length-1]];
   return lastFrameTop;
 }
 
 function previousverticalpanelrightitem(panelname, parts) {
   var topStackItems = Object.keys(parts.frame['right']).sort();
-  var lastFrameTop = parts.frame['right'][topStackItems[topStackItems.length-1]];
+  var lastFrameTop  = parts.frame['right'][topStackItems[topStackItems.length-1]];
   return lastFrameTop;
 }
 
@@ -477,7 +477,7 @@ function totalwidthoffset(parts) {
   return woffset;
 }
 
-function totalHeightOffset(parts) {
+function totalheightoffset(parts) {
   // sum of all horizontal part heights
   var voffset = 0;
   Object.values(parts.frame['top']).forEach(function(p) {
@@ -502,7 +502,7 @@ function totalHeightOffset(parts) {
   return voffset;
 }
 
-function panelsDLOHeightSum(parts) {
+function panelsdloheightsum(parts) {
   var dlosum = 0;
   var panelnames = Object.keys(parts.panels).sort();
   panelnames.forEach(function(name) {
@@ -512,7 +512,7 @@ function panelsDLOHeightSum(parts) {
   return dlosum;
 }
 
-function panelsDLOWidthSum(parts) {
+function panelsdlowidthsum(parts) {
   var dlosum = 0;
   var panelnames = Object.keys(parts.panels).sort();
   panelnames.forEach(function(name) {
