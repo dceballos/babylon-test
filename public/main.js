@@ -20,15 +20,15 @@ window.onload=function(){
 
 function stretch(geometry, points, axis) {
   geometry.computeBoundingBox();
-  var newgeo = geometry.clone();
-  var box    = newgeo.boundingBox;
-  var center = box.getCenter();
+  var newgeo       = geometry.clone();
+  var box          = newgeo.boundingBox;
+  var stretchpoint = box.getCenter();
   newgeo.boundingSphere = null;
   newgeo.boundingBox    = null;
   newgeo.vertices.forEach(function(v) {
-    if (v[axis] < center[axis]) {
+    if (v[axis] < stretchpoint[axis]) {
       v[axis] -= points/2;
-    }else if (v[axis] > center[axis]) {
+    }else if (v[axis] > stretchpoint[axis]) {
       v[axis] += points/2;
     }
   });
@@ -676,18 +676,8 @@ function init() {
 
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
   camera.position.z = 150;
-
-  controls = new THREE.OrbitControls( camera );
-  controls.rotateSpeed = 0.5;
-  controls.zoomSpeed = 0.5;
-  controls.panSpeed = 0.5;
-  controls.enableZoom = true;
-  controls.enableRotate = false;
-  controls.enablePan = true;
-  controls.enableDamping = false;
-  controls.minPolarAngle = Math.PI/2;
-  controls.maxPolarAngle = Math.PI/2;
-  controls.dampingFactor = 10;
+  
+  loadControls();
 
   scene = new THREE.Scene();
 
@@ -719,7 +709,24 @@ function init() {
     originalWidth  = meshwidth(ogmodel);
     scene.add(object);
     updateInfo();
+    //unevenGeometry(10);
+  });
 
+  function loadControls() {
+    controls = new THREE.OrbitControls( camera );
+    controls.rotateSpeed = 0.5;
+    controls.zoomSpeed = 0.5;
+    controls.panSpeed = 0.5;
+    controls.enableZoom = true;
+    controls.enableRotate = false;
+    controls.enablePan = true;
+    controls.enableDamping = false;
+    controls.minPolarAngle = Math.PI/2;
+    controls.maxPolarAngle = Math.PI/2;
+    controls.dampingFactor = 10;
+  }
+
+  function unevenGeometry(size) {
     var material = new THREE.LineBasicMaterial({
         color: 0xffffff
     });
@@ -736,13 +743,10 @@ function init() {
       new THREE.Vector3( 0, 0, 0 ),
     );
     geometry.center();
-
-    //var line = new THREE.Line( geometry, material );
-    //scene.add( line );
-    //stretch(line, 25, 'x');  
-    
-  });
-
+    var line = new THREE.Line( geometry, material );
+    scene.add( line );
+    line.geometry = stretch(line.geometry, size, 'x');
+  }
   document.getElementById("container").addEventListener("mousedown", function(event) {
     canvasClick(event);
   });
