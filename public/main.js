@@ -660,7 +660,7 @@ function init() {
   controls.zoomSpeed = 0.5;
   controls.panSpeed = 0.5;
   controls.enableZoom = true;
-  controls.enableRotate = true;
+  controls.enableRotate = false;
   controls.enablePan = true;
   controls.enableDamping = false;
   controls.minPolarAngle = Math.PI/2;
@@ -759,8 +759,10 @@ function canvasClick( event ) {
 
   raycaster.setFromCamera( mouse, camera );
   var intersects = raycaster.intersectObjects(model.children); 
+
   if ( intersects.length > 0 ) {
-    intersects[0].object.callback();
+    var mesh = intersects[0].object;
+    mesh.callback(mesh);
   }
 
   if (intersects.length == 0) {
