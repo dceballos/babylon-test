@@ -14,22 +14,25 @@ window.onload=function(){
   animate();
 }
 
+// get center
+// anything less subtract
+// anything greater add
+
 function stretch(geometry, points, axis) {
-  geometry = geometry.clone();
   geometry.computeBoundingBox();
-  var box = geometry.boundingBox;
-  var center = box.getCenter();
-  // get center
-  // anything less subtract
-  // anything greater add
-  geometry.vertices.forEach(function(v) {
+  var newgeo   = geometry.clone();
+  var box      = newgeo.boundingBox;
+  var center   = box.getCenter();
+    newgeo.vertices.forEach(function(v) {
     if (v[axis] < center[axis]) {
       v[axis] -= points/2;
     }else if (v[axis] > center[axis]) {
       v[axis] += points/2;
     }
   });
-  return geometry;
+  newgeo.boundingSphere = null;
+  newgeo.boundingBox = null;
+  return newgeo;
 }
 
 function doHeightResize() {
@@ -663,12 +666,6 @@ function resize() {
   renderer.setSize( window.innerWidth, window.innerHeight );  
 }
 
-function updateGeometry(jamb1) {
-  jamb1.updateMatrix();
-  jamb1.geometry.applyMatrix(jamb1.matrix);
-  jamb1.matrix.identity();
-}
-
 function init() {
   renderer = new THREE.WebGLRenderer();
   renderer.setSize( window.innerWidth, window.innerHeight );
@@ -789,6 +786,7 @@ function canvasClick( event ) {
     mesh.callback(mesh);
   }
 
+  console.log(intersects);
   if (intersects.length == 0) {
     clearAllColors();
     clearMeshInfo();
