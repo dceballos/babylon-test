@@ -150,55 +150,45 @@ function resizeHeight(height, object) {
     // scale left parts
     var plparts = Object.keys(panel['left']).sort();
     plparts.forEach(function(part) {
-      var mesh      = panel['left'][part];
-      var ogmesh    = ogPanel['left'][part];
-      var ogHeight  = meshHeight(ogmesh);
-      var dloOffset = ogHeight-ogDLOHeight;
-      var newHeight = (newFrameDLO*ogDLORatio)+dloOffset;
-
+      var mesh        = panel['left'][part];
+      var ogmesh      = ogPanel['left'][part];
+      var ogHeight    = meshHeight(ogmesh);
+      var dloOffset   = ogHeight-ogDLOHeight;
+      var newHeight   = (newFrameDLO*ogDLORatio)+dloOffset;
       var lenToResize = newHeight-ogHeight;
-      var newGeo    = stretch(ogmesh.geometry, lenToResize, 'y');
-      mesh.geometry = newGeo;
+      var newGeo      = stretch(ogmesh.geometry, lenToResize, 'y');
+      mesh.geometry   = newGeo;
 
+      // Re-center
+      ogmesh.geometry.computeBoundingBox();
+      var pmax        = panelTopMax(panel);
+      var pmin        = panelBottomMin(panel);
+      var pheight     = pmax-pmin;
+      var pcenter     = pmax-(pheight/2);
+      var ogpcenter   = ogmesh.geometry.boundingBox.getCenter().y ;
+      mesh.position.y = pcenter-ogpcenter;
     });
 
     // scale right parts
     var plparts = Object.keys(panel['right']).sort();
     plparts.forEach(function(part) {
-      var mesh      = panel['right'][part];
-      var ogmesh    = ogPanel['right'][part];
-      var ogHeight  = meshHeight(ogmesh);
-      var dloOffset = ogHeight-ogDLOHeight;
-      var newHeight = (newFrameDLO*ogDLORatio)+dloOffset;
-
+      var mesh        = panel['right'][part];
+      var ogmesh      = ogPanel['right'][part];
+      var ogHeight    = meshHeight(ogmesh);
+      var dloOffset   = ogHeight-ogDLOHeight;
+      var newHeight   = (newFrameDLO*ogDLORatio)+dloOffset;
       var lenToResize = newHeight-ogHeight;
-      var newGeo    = stretch(ogmesh.geometry, lenToResize, 'y');
-      mesh.geometry = newGeo;
-    });
+      var newGeo      = stretch(ogmesh.geometry, lenToResize, 'y');
+      mesh.geometry   = newGeo;
 
-    // correct scaled left bars
-    // look for other solutions to this
-    var pbparts = Object.keys(panel['left']).sort();
-    pbparts.forEach(function(part) {
-      var mesh           = panel['left'][part];
-      var ogmesh         = ogPanel['left'][part];
-      var box            = meshBox(mesh) 
-      var previousOffset = previousItemTopOffset(ogmesh, ogPrevious);
-      var previousBox    = meshBox(previous);
-      var distance       = previousBox.min.y-box.max.y-previousOffset;
-      mesh.position.y    = mesh.position.y+distance;
-    });
-
-    var pbparts = Object.keys(panel['right']).sort();
-    pbparts.forEach(function(part) {
-      var mesh           = panel['right'][part];
-      var box            = meshBox(mesh) 
-      var ogmesh         = ogPanel['right'][part];
-      var previousOffset = previousItemTopOffset(ogmesh, ogPrevious);
-      var previousBox    = meshBox(previous);
-      var box            = meshBox(mesh);
-      var distance       = previousBox.min.y-box.max.y-previousOffset;
-      mesh.position.y    = mesh.position.y+distance;
+      // Re-center
+      ogmesh.geometry.computeBoundingBox();
+      var pmax        = panelTopMax(panel);
+      var pmin        = panelBottomMin(panel);
+      var pheight     = pmax-pmin;
+      var pcenter     = pmax-(pheight/2);
+      var ogpcenter   = ogmesh.geometry.boundingBox.getCenter().y ;
+      mesh.position.y = pcenter-ogpcenter;
     });
   });
 
