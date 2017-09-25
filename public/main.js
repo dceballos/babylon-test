@@ -20,18 +20,18 @@ window.onload=function(){
 
 function stretch(geometry, points, axis) {
   geometry.computeBoundingBox();
-  var newgeo   = geometry.clone();
-  var box      = newgeo.boundingBox;
-  var center   = box.getCenter();
-    newgeo.vertices.forEach(function(v) {
+  var newgeo = geometry.clone();
+  var box    = newgeo.boundingBox;
+  var center = box.getCenter();
+  newgeo.boundingSphere = null;
+  newgeo.boundingBox    = null;
+  newgeo.vertices.forEach(function(v) {
     if (v[axis] < center[axis]) {
       v[axis] -= points/2;
     }else if (v[axis] > center[axis]) {
       v[axis] += points/2;
     }
   });
-  newgeo.boundingSphere = null;
-  newgeo.boundingBox = null;
   return newgeo;
 }
 
