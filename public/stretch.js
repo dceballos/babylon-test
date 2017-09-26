@@ -5,6 +5,8 @@ window.onload=function(){
 
   model           = null;
   og_model        = null;
+  line            = null;
+  og_line         = null;
   original_height = null;
   original_width  = null;
   current_mesh    = null;
@@ -31,6 +33,15 @@ function do_width_resize() {
   resize_width(new_width, model);
 }
 
+function do_line_resize() {
+  var scaler        = document.getElementById("lscaler");
+  var value         = (scaler.value/100)+1;
+  var og_width      = mesh_width(og_line);
+  var current_width = mesh_width(line);
+  var desired_width = og_width*value;
+  var len_to_resize = desired_width - current_width;
+  line.geometry     = stretch(line.geometry, len_to_resize, 'x');
+}
 // get center
 // anything less subtract
 // anything greater add
@@ -675,7 +686,7 @@ function init() {
   load_controls();
 
   var ambient = new THREE.AmbientLight( 0x101030 );
-  scene.add( ambient );
+  scene.add(ambient);
 
   var directional_light = new THREE.DirectionalLight(0xffeedd);
   directional_light.position.set( 0, 0, 1 );
@@ -700,8 +711,9 @@ function init() {
     og_model        = object.clone();
     original_height = mesh_height(og_model);
     original_width  = mesh_width(og_model);
-    scene.add(object);
-    update_info();
+    //scene.add(object);
+    //update_info();
+    uneven_geometry_test(0);
   });
 
   function load_controls() {
@@ -718,21 +730,36 @@ function init() {
     controls.dampingFactor = 10;
   }
 
-  document.getElementById("container").addEventListener("mousedown", function(event) {
-    canvas_click(event);
-  });
-  document.getElementById("hscaler").addEventListener("mousedown", function() {
+  function uneven_geometry_test(size) {
+    var material = new THREE.LineBasicMaterial({
+        color: 0xffffff
+    });
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push(
+      new THREE.Vector3( 0, 0, 0 ),
+      new THREE.Vector3( 0, 10, 0 ),
+      new THREE.Vector3( 60, 10, 0 ),
+      new THREE.Vector3( 60, 0, 0 ),
+      new THREE.Vector3( 40, 0, 0 ),
+      new THREE.Vector3( 40, -10, 0 ),
+      new THREE.Vector3( 20, -10, 0 ),
+      new THREE.Vector3( 20, 0, 0 ),
+      new THREE.Vector3( 0, 0, 0 ),
+    );
+    geometry.center();
+    line = new THREE.Line( geometry, material );
+    og_line = line.clone();
+    scene.add(line);
+  }
+
+  document.getElementById("lscaler").addEventListener("mousedown", function() {
     controls.enabled = false;
   });
-  document.getElementById("hscaler").addEventListener("mouseup", function() {
+  document.getElementById("lscaler").addEventListener("mouseup", function() {
     controls.enabled = true;
   });
-  document.getElementById("wscaler").addEventListener("mousedown", function() {
-    controls.enabled = false;
-  });
-  document.getElementById("wscaler").addEventListener("mouseup", function() {
-    controls.enabled = true;
-  });
+
+
 }
 
 function animate() {
@@ -780,7 +807,7 @@ function append_title() {
   title.style.backgroundColor = 'transparent';
   title.style.zIndex = '1';
   title.style.fontFamily = 'Monospace';
-  title.innerHTML = "ES-100";
+  title.innerHTML = "Stretch Demo";
   document.body.appendChild(title);
 }
 
