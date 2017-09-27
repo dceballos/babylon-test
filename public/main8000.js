@@ -459,10 +459,6 @@ function total_width_offset(parts) {
   Object.values(parts.frame['right']).forEach(function(p) {
     woffset += mesh_width(p);
   });
-  // Note: Deal with vertical rails
-  //Object.values(parts.rails).forEach(function(p) {
-  //  woffset += mesh_width(p);
-  //});
   var panel_names = Object.keys(parts.panels).sort();
   panel_names.forEach(function(panel_name) {
     var panel = parts.panels[panel_name];
@@ -478,35 +474,20 @@ function total_width_offset(parts) {
 
 function total_height_offset(parts) {
   // sum of all horizontal part heights
-  var hparts = []
-  var voffset = 0;
-  var frame_top_parts = Object.values(parts.frame['top']).sort()
+  var sum = 0
   var panel_names = Object.keys(parts.panels).sort();
-  frame_top_parts.forEach(function(p) {
-    hparts.push(p);
-  });
-  panel_names.forEach(function(panel_name) {
-    var panel = parts.panels[panel_name];
-    Object.values(panel['top']).forEach(function(p) {
-      hparts.push(p);
-    });
-    Object.values(panel['bottom']).forEach(function(p) {
-      hparts.push(p);
-    });
-    /*var rail_index = panel_names.indexOf(panel_name)+1;
-    if (parts.rails[rail_index]) {
-      hparts.push(parts.rails[rail_index]);
-    }*/
-  });
-  Object.values(parts.frame['bottom']).forEach(function(p) {
-    hparts.push(p);
-  });
 
-  voffset += mesh_box(hparts[0]).max.y-mesh_box(hparts[1]).min.y;
-  voffset += mesh_box(hparts[2]).max.y-mesh_box(hparts[3]).min.y;
-  voffset += mesh_box(hparts[4]).max.y-mesh_box(hparts[5]).min.y;
+  sum += (frame_top_max(parts.frame) - panel_top_min(parts.panels[panel_names[0]]));
+  if (panel_names.length > 1) {
+    for (i=0; i<panel_names.length-1;i++) {
+      var pone = parts.panels[panel_names[i]];
+      var ptwo = parts.panels[panel_names[i+1]];
+      sum += panel_bottom_max(pone) - panel_top_min(ptwo);
+    }
+  }
+  sum += panel_bottom_max(parts.panels[panel_names[panel_names.length-1]]) - frame_bottom_min(parts.frame);
 
-  return voffset;
+  return sum;
 }
 
 function panels_dlo_height_sum(parts) {
@@ -571,6 +552,18 @@ function panel_width(panel) {
   var pmax = panel_right_max(panel);
   var pmin = panel_left_min(panel);
   return pmax-pmin;
+}
+
+function frame_top_max(frame) {
+  var parts = Object.keys(frame['top']).sort();
+  var box = mesh_box(frame['top'][parts[0]])
+  return box.max.y;
+}
+
+function frame_bottom_min(frame) {
+  var parts = Object.keys(frame['bottom']).sort();
+  var box = mesh_box(frame['bottom'][parts[0]])
+  return box.min.y;
 }
 
 function panel_bottom_max(panel) {
