@@ -22,6 +22,8 @@ function do_height_resize() {
   var value      = (scaler.value/100)+1;
   var new_height = original_height*value;
   resize_height(new_height, model);
+  update_info();
+  update_mesh_info(current_mesh);
 }
 
 function do_width_resize() {
@@ -29,6 +31,8 @@ function do_width_resize() {
   var value     = (scaler.value/100)+1;
   var new_width = original_width*value;
   resize_width(new_width, model);
+  update_info();
+  update_mesh_info(current_mesh);
 }
 
 // get center
@@ -223,9 +227,6 @@ function resize_height(height, object) {
     var newpos          = center-og_center
     mesh.position.y     = newpos;
   });
-
-  //update_info();
-  //update_mesh_info(current_mesh);
 }
 
 function resize_width(width, object) {
@@ -362,9 +363,6 @@ function resize_width(width, object) {
     var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'x');
     mesh.geometry     = new_geo;
   });
-
-  //update_info();
-  //update_mesh_info(current_mesh);
 }
 
 function mesh_box(mesh) {
@@ -710,8 +708,8 @@ function init() {
     controls.enableRotate = true;
     controls.enablePan = true;
     controls.enableDamping = false;
-    //controls.minPolarAngle = Math.PI/2;
-    //controls.maxPolarAngle = Math.PI/2;
+    controls.minPolarAngle = Math.PI/2;
+    controls.maxPolarAngle = Math.PI/2;
     controls.dampingFactor = 10;
   }
 
@@ -759,7 +757,6 @@ function canvas_click( event ) {
     mesh.callback(mesh);
   }
 
-  console.log(intersects);
   if (intersects.length == 0) {
     clear_all_colors();
     clear_mesh_info();
