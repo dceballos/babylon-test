@@ -312,21 +312,17 @@ function resize_width(width, object) {
     var pbparts = Object.keys(panel['bottom']).sort();
 
     // translate left parts
-    // TODO: Change this to be translated by center difference
     plparts.forEach(function(part) {
       var mesh            = panel['left'][part];
       var width           = mesh_width(mesh);
-      var previous_offset = panel_left_min(og_panel)-og_frame_box.min.x;
-      mesh.position.x     = -((new_dlo_width-og_dlo_width)/2+width+previous_offset);
+      mesh.position.x     = -(new_dlo_width-og_dlo_width)/2;
     });
 
     // translate right parts
-    // TODO: Change this to be translated by center difference
     prparts.forEach(function(part) {
       var mesh        = panel['right'][part];
       var width       = mesh_width(mesh);
-      var previous_offset = panel_left_min(og_panel)-og_frame_box.min.x;
-      mesh.position.x = (new_dlo_width-og_dlo_width)/2+width+previous_offset;
+      mesh.position.x = (new_dlo_width-og_dlo_width)/2;
     });
 
     // scale top parts
@@ -388,7 +384,7 @@ function mesh_width(mesh) {
 
 function previous_rail_panel(rail, parts) {
   var rails_keys = Object.keys(parts.rails);
-  var rail_index   = rails_keys.indexOf(rail);
+  var rail_index = rails_keys.indexOf(rail);
   var panel_keys = Object.keys(parts.panels).sort();
   var panel_key  = panel_keys[rail_index];
   return parts.panels[panel_key];
@@ -451,32 +447,18 @@ function previous_vertical_panel_right_item(panel_name, parts) {
 }
 
 function total_width_offset(parts) {
-  // sum of all horizontal part widths
-  var woffset = 0;
-  Object.values(parts.frame['left']).forEach(function(p) {
-    woffset += mesh_width(p);
-  });
-  Object.values(parts.frame['right']).forEach(function(p) {
-    woffset += mesh_width(p);
-  });
+  // sum of all horizontal part offsetd
+  var sum = 0;
   var panel_names = Object.keys(parts.panels).sort();
-  panel_names.forEach(function(panel_name) {
-    var panel = parts.panels[panel_name];
-    Object.values(panel['left']).forEach(function(p) {
-      woffset += mesh_width(p);
-    });
-    Object.values(panel['right']).forEach(function(p) {
-      woffset += mesh_width(p);
-    });
-  });
-  return woffset;
+  sum += panel_left_max(parts.panels[panel_names[0]]) - frame_left_min(parts.frame);
+  sum += frame_right_max(parts.frame) - panel_right_min(parts.panels[panel_names[0]]);
+  return sum;
 }
 
 function total_height_offset(parts) {
-  // sum of all horizontal part heights
+  // sum of all horizontal part offsets
   var sum = 0
   var panel_names = Object.keys(parts.panels).sort();
-
   sum += (frame_top_max(parts.frame) - panel_top_min(parts.panels[panel_names[0]]));
   if (panel_names.length > 1) {
     for (i=0; i<panel_names.length-1;i++) {
@@ -486,7 +468,6 @@ function total_height_offset(parts) {
     }
   }
   sum += panel_bottom_max(parts.panels[panel_names[panel_names.length-1]]) - frame_bottom_min(parts.frame);
-
   return sum;
 }
 
@@ -564,6 +545,18 @@ function frame_bottom_min(frame) {
   var parts = Object.keys(frame['bottom']).sort();
   var box = mesh_box(frame['bottom'][parts[0]])
   return box.min.y;
+}
+
+function frame_left_min(frame) {
+  var parts = Object.keys(frame['left']).sort();
+  var box = mesh_box(frame['left'][parts[0]])
+  return box.min.x;
+}
+
+function frame_right_max(frame) {
+  var parts = Object.keys(frame['right']).sort();
+  var box = mesh_box(frame['right'][parts[0]])
+  return box.max.x;
 }
 
 function panel_bottom_max(panel) {
