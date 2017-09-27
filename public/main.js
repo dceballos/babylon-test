@@ -22,6 +22,8 @@ function do_height_resize() {
   var value      = (scaler.value/100)+1;
   var new_height = original_height*value;
   resize_height(new_height, model);
+  update_info();
+  update_mesh_info(current_mesh);
 }
 
 function do_width_resize() {
@@ -29,6 +31,8 @@ function do_width_resize() {
   var value     = (scaler.value/100)+1;
   var new_width = original_width*value;
   resize_width(new_width, model);
+  update_info();
+  update_mesh_info(current_mesh);
 }
 
 // get center
@@ -61,8 +65,6 @@ function resize_height(height, object) {
   var og_parts                 = meshes_as_parts(og_object,true);
   var og_frame_height          = og_frame_box.max.y-og_frame_box.min.y;	
   var og_frame_width           = og_frame_box.max.y-og_frame_box.min.y;
-  var og_vertical_frame_offset = og_frame_height-panels_dlo_height_sum(og_parts);
-  var og_frame_dlo             = og_frame_height-og_vertical_frame_offset;
 
   // Translate frame top parts
   var ftparts = Object.keys(parts.frame['top']).sort();
@@ -109,7 +111,7 @@ function resize_height(height, object) {
   });
 
   var new_frame_height      = og_frame_height*factor;
-  var vertical_frame_offset = total_height_offset(parts);
+  var vertical_frame_offset = total_height_offset(og_parts);
   var og_dlo_sum            = panels_dlo_height_sum(og_parts);
   var new_frame_dlo         = new_frame_height-vertical_frame_offset;
 
@@ -120,6 +122,7 @@ function resize_height(height, object) {
   panel_names.forEach(function(panel_name, index) {
     var panel           = parts.panels[panel_name];
     var previous        = previous_vertical_panel_item(panel_name, parts);
+    var previous_box    = mesh_box(previous);
     var og_previous     = previous_vertical_panel_item(panel_name, og_parts);
     var og_panel        = og_parts.panels[panel_name];
     var og_panel_height = panel_height(og_panel);
@@ -136,7 +139,7 @@ function resize_height(height, object) {
       var og_mesh      = og_panel['top'][part];
       var og_prev_dist = previous_item_top_offset(og_mesh, og_previous);
       var box          = mesh_box(og_mesh) 
-      var from         = mesh_box(previous).min.y-og_prev_dist;
+      var from         = mesh_box(previous).max.y-og_prev_dist;
       var distance     = from-box.max.y;
       mesh.position.y  = distance
     });
@@ -146,10 +149,10 @@ function resize_height(height, object) {
     pbparts.forEach(function(part) {
       var mesh        = panel['bottom'][part];
       var og_mesh     = og_panel['bottom'][part];
-      var box         = mesh_box(og_mesh) 
-      var from        = panel_top_min(panel)-new_dlo_height;
-      var distance    = from-box.max.y;
-      mesh.position.y = distance;
+      var og_box      = mesh_box(og_mesh) 
+      var height      = mesh_height(mesh);
+      var new_pos     = panel_top_min(panel)-new_dlo_height-(height/2);
+      mesh.position.y = new_pos-og_box.getCenter().y;
     });	
 
     // scale left parts
@@ -224,9 +227,6 @@ function resize_height(height, object) {
     var newpos          = center-og_center
     mesh.position.y     = newpos;
   });
-
-  update_info();
-  update_mesh_info(current_mesh);
 }
 
 function resize_width(width, object) {
@@ -313,19 +313,17 @@ function resize_width(width, object) {
     var pbparts = Object.keys(panel['bottom']).sort();
 
     // translate left parts
-    // TODO: Change this to be translated by center difference
     plparts.forEach(function(part) {
-      var mesh        = panel['left'][part];
-      var width       = mesh_width(mesh);
-      mesh.position.x = -((new_dlo_width-og_dlo_width)/2+width);
+      var mesh            = panel['left'][part];
+      var width           = mesh_width(mesh);
+      mesh.position.x     = -(new_dlo_width-og_dlo_width)/2;
     });
 
     // translate right parts
-    // TODO: Change this to be translated by center difference
     prparts.forEach(function(part) {
       var mesh        = panel['right'][part];
       var width       = mesh_width(mesh);
-      mesh.position.x = (new_dlo_width-og_dlo_width)/2+width;
+      mesh.position.x = (new_dlo_width-og_dlo_width)/2;
     });
 
     // scale top parts
@@ -342,30 +340,29 @@ function resize_width(width, object) {
 
     // scale bottom parts
     pbparts.forEach(function(part) {
-      var mesh       = panel['bottom'][part];
-      var og_mesh    = og_panel['bottom'][part];
-      var og_width   = mesh_width(og_mesh);
-      var offset     = og_frame_width-og_width;
-      var new_width  = (og_frame_width*factor)-offset;
-      var new_factor = new_width/og_width;
-      mesh.scale.x   = new_factor;
+      var mesh          = panel['bottom'][part];
+      var og_mesh       = og_panel['bottom'][part];
+      var og_width      = mesh_width(og_mesh);
+      var offset        = og_frame_width-og_width;
+      var new_width     = (og_frame_width*factor)-offset;
+      var len_to_resize = new_width-og_width;
+      var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'x');
+      mesh.geometry     = new_geo;
     });
   });
 
   // Scale rail - same as top
   var rparts = Object.keys(parts.rails).sort();
   rparts.forEach(function(order) {
-    var mesh       = parts.rails[order];
-    var og_mesh    = og_parts.rails[order];
-    var og_width   = mesh_width(og_mesh);
-    var offset     = og_frame_width-og_width;
-    var new_width  = (og_frame_width*factor)-offset;
-    var new_factor = new_width/og_width;
-    mesh.scale.x   = new_factor;
+    var mesh          = parts.rails[order];
+    var og_mesh       = og_parts.rails[order];
+    var og_width      = mesh_width(og_mesh);
+    var offset        = og_frame_width-og_width;
+    var new_width     = (og_frame_width*factor)-offset;
+    var len_to_resize = new_width-og_width;
+    var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'x');
+    mesh.geometry     = new_geo;
   });
-
-  update_info();
-  update_mesh_info(current_mesh);
 }
 
 function mesh_box(mesh) {
@@ -385,7 +382,7 @@ function mesh_width(mesh) {
 
 function previous_rail_panel(rail, parts) {
   var rails_keys = Object.keys(parts.rails);
-  var rail_index   = rails_keys.indexOf(rail);
+  var rail_index = rails_keys.indexOf(rail);
   var panel_keys = Object.keys(parts.panels).sort();
   var panel_key  = panel_keys[rail_index];
   return parts.panels[panel_key];
@@ -415,7 +412,7 @@ function previous_item_right_offset(current, previous) {
 function previous_item_top_offset(current, previous) {
   var current_box  = mesh_box(current);
   var previous_box = mesh_box(previous);
-  return previous_box.min.y - current_box.max.y;
+  return previous_box.max.y - current_box.max.y;
 }
 
 function previous_vertical_panel_item(panel_name, parts) {
@@ -448,54 +445,28 @@ function previous_vertical_panel_right_item(panel_name, parts) {
 }
 
 function total_width_offset(parts) {
-  // sum of all horizontal part widths
-  var woffset = 0;
-  Object.values(parts.frame['left']).forEach(function(p) {
-    woffset += mesh_width(p);
-  });
-  Object.values(parts.frame['right']).forEach(function(p) {
-    woffset += mesh_width(p);
-  });
-  // Note: Deal with vertical rails
-  //Object.values(parts.rails).forEach(function(p) {
-  //  woffset += mesh_width(p);
-  //});
+  // sum of all horizontal part offsetd
+  var sum = 0;
   var panel_names = Object.keys(parts.panels).sort();
-  panel_names.forEach(function(panel_name) {
-    var panel = parts.panels[panel_name];
-    Object.values(panel['left']).forEach(function(p) {
-      woffset += mesh_width(p);
-    });
-    Object.values(panel['right']).forEach(function(p) {
-      woffset += mesh_width(p);
-    });
-  });
-  return woffset;
+  sum += panel_left_max(parts.panels[panel_names[0]]) - frame_left_min(parts.frame);
+  sum += frame_right_max(parts.frame) - panel_right_min(parts.panels[panel_names[0]]);
+  return sum;
 }
 
 function total_height_offset(parts) {
-  // sum of all horizontal part heights
-  var voffset = 0;
-  Object.values(parts.frame['top']).forEach(function(p) {
-    voffset += mesh_height(p);
-  });
-  Object.values(parts.frame['bottom']).forEach(function(p) {
-    voffset += mesh_height(p);
-  });
-  Object.values(parts.rails).forEach(function(p) {
-    voffset += mesh_height(p);
-  });
+  // sum of all horizontal part offsets
+  var sum = 0
   var panel_names = Object.keys(parts.panels).sort();
-  panel_names.forEach(function(panel_name) {
-    var panel = parts.panels[panel_name];
-    Object.values(panel['top']).forEach(function(p) {
-      voffset += mesh_height(p);
-    });
-    Object.values(panel['bottom']).forEach(function(p) {
-      voffset += mesh_height(p);
-    });
-  });
-  return voffset;
+  sum += (frame_top_max(parts.frame) - panel_top_min(parts.panels[panel_names[0]]));
+  if (panel_names.length > 1) {
+    for (i=0; i<panel_names.length-1;i++) {
+      var pone = parts.panels[panel_names[i]];
+      var ptwo = parts.panels[panel_names[i+1]];
+      sum += panel_bottom_max(pone) - panel_top_min(ptwo);
+    }
+  }
+  sum += panel_bottom_max(parts.panels[panel_names[panel_names.length-1]]) - frame_bottom_min(parts.frame);
+  return sum;
 }
 
 function panels_dlo_height_sum(parts) {
@@ -560,6 +531,30 @@ function panel_width(panel) {
   var pmax = panel_right_max(panel);
   var pmin = panel_left_min(panel);
   return pmax-pmin;
+}
+
+function frame_top_max(frame) {
+  var parts = Object.keys(frame['top']).sort();
+  var box = mesh_box(frame['top'][parts[0]])
+  return box.max.y;
+}
+
+function frame_bottom_min(frame) {
+  var parts = Object.keys(frame['bottom']).sort();
+  var box = mesh_box(frame['bottom'][parts[0]])
+  return box.min.y;
+}
+
+function frame_left_min(frame) {
+  var parts = Object.keys(frame['left']).sort();
+  var box = mesh_box(frame['left'][parts[0]])
+  return box.min.x;
+}
+
+function frame_right_max(frame) {
+  var parts = Object.keys(frame['right']).sort();
+  var box = mesh_box(frame['right'][parts[0]])
+  return box.max.x;
 }
 
 function panel_bottom_max(panel) {
@@ -682,7 +677,7 @@ function init() {
   scene.add(directional_light);
 
   var loader = new THREE.OBJLoader();
-  loader.load( 'cactus-3d.obj', function ( object ) {
+  loader.load(obj_file, function ( object ) {
     object.name = "esmodel";
     object.children.forEach(function(mesh) {
       var geometry = new THREE.Geometry().fromBufferGeometry(mesh.geometry);
@@ -710,7 +705,7 @@ function init() {
     controls.zoomSpeed = 0.5;
     controls.panSpeed = 0.5;
     controls.enableZoom = true;
-    controls.enableRotate = false;
+    controls.enableRotate = true;
     controls.enablePan = true;
     controls.enableDamping = false;
     controls.minPolarAngle = Math.PI/2;
@@ -762,7 +757,6 @@ function canvas_click( event ) {
     mesh.callback(mesh);
   }
 
-  console.log(intersects);
   if (intersects.length == 0) {
     clear_all_colors();
     clear_mesh_info();
@@ -780,7 +774,7 @@ function append_title() {
   title.style.backgroundColor = 'transparent';
   title.style.zIndex = '1';
   title.style.fontFamily = 'Monospace';
-  title.innerHTML = "ES-100";
+  title.innerHTML = "ES-8000";
   document.body.appendChild(title);
 }
 
@@ -868,10 +862,10 @@ function select_color(mesh) {
 
 function display_in_inches(num) {
   var remainder = num % 1;
-  var fraction = new Fraction(remainder);
   if (remainder == 0) {
     return num;
   }
+  var fraction = new Fraction(remainder);
   return Math.floor(num) + " " + round_to_sixteenth(remainder) + "\"";
 }
 
