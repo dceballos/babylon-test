@@ -15,6 +15,7 @@ window.onload=function(){
   append_mesh_info();
 
   init();
+  events();
   animate();
 }
 
@@ -697,20 +698,10 @@ function init() {
     update_info();
   });
 
-  function load_controls() {
-    controls = new THREE.OrbitControls( camera );
-    controls.rotateSpeed = 0.5;
-    controls.zoomSpeed = 0.5;
-    controls.panSpeed = 0.5;
-    controls.enableZoom = true;
-    controls.enableRotate = true;
-    controls.enablePan = true;
-    controls.enableDamping = false;
-    controls.minPolarAngle = Math.PI/2;
-    controls.maxPolarAngle = Math.PI/2;
-    controls.dampingFactor = 10;
-  }
+  
+}
 
+function events() {
   document.getElementById("container").addEventListener("mousedown", function(event) {
     canvas_click(event);
   });
@@ -726,6 +717,25 @@ function init() {
   document.getElementById("wscaler").addEventListener("mouseup", function() {
     controls.enabled = true;
   });
+}
+
+function center() {
+  controls.target.set(0, 0, 0);
+  camera.position.copy(controls.target).add(new THREE.Vector3(0, 0, 150));
+}
+
+function load_controls() {
+  controls = new THREE.OrbitControls( camera );
+  controls.rotateSpeed = 0.5;
+  controls.zoomSpeed = 0.5;
+  controls.panSpeed = 0.5;
+  controls.enableZoom = true;
+  controls.enableRotate = true;
+  controls.enablePan = true;
+  controls.enableDamping = false;
+  //controls.minPolarAngle = Math.PI/2;
+  //controls.maxPolarAngle = Math.PI/2;
+  controls.dampingFactor = 10;
 }
 
 function animate() {
