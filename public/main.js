@@ -3,6 +3,7 @@ window.onload=function(){
   info            = document.createElement('div');
   mesh_info       = document.createElement('div');
 
+  light           = null;
   model           = null;
   og_model        = null;
   original_height = null;
@@ -669,12 +670,9 @@ function init() {
   
   load_controls();
 
-  var ambient = new THREE.AmbientLight( 0x101030 );
-  scene.add( ambient );
-
-  var directional_light = new THREE.DirectionalLight(0xffeedd);
-  directional_light.position.set( 0, 0, 1 );
-  scene.add(directional_light);
+  light = new THREE.DirectionalLight( 0xffffff, 1 );
+  light.position = camera.position;
+  scene.add(light);
 
   var loader = new THREE.OBJLoader();
   loader.load(obj_file, function ( object ) {
@@ -738,6 +736,7 @@ function animate() {
 function render() {
   controls.update();
   renderer.render( scene, camera );
+  light.position.copy(camera.position);
 }
 
 function canvas_click( event ) {
