@@ -663,7 +663,7 @@ function resize() {
 function init() {
   container = document.getElementById( 'container' );
   scene     = new THREE.Scene();
-  renderer  = new THREE.WebGLRenderer();
+  renderer  = new THREE.WebGLRenderer({antialias:true});
   camera    = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
   renderer.setSize( window.innerWidth, window.innerHeight );
   container.appendChild( renderer.domElement );
