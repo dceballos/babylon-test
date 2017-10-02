@@ -59,9 +59,14 @@ function stretch(geometry, points, axis) {
   return new_geo;
 }
 
-function resize_frame_dlo(panel_name, height) {
+function resize_panel_dlo(panel_name, height) {
+  var parts = meshes_as_parts(model,false);
+  var dlo_sum = panels_dlo_height_sum(parts);
+  if (height >= dlo_sum) {
+		return;
+	}
   var frame_height = mesh_height(model);
-  var new_ratios = dlo_height_ratios(height, panel_name);
+  var new_ratios   = dlo_height_ratios(height, panel_name);
   panel_dlo_ratios = new_ratios;
   resize_height(frame_height, model);
 }
