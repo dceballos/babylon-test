@@ -3,12 +3,14 @@ window.onload=function(){
   info            = document.createElement('div');
   mesh_info       = document.createElement('div');
 
-  light           = null;
-  model           = null;
-  og_model        = null;
-  original_height = null;
-  original_width  = null;
-  current_mesh    = null;
+  light            = null;
+  model            = null;
+  og_model         = null;
+  og_parts         = null;
+  original_height  = null;
+  original_width   = null;
+  current_mesh     = null;
+  panel_dlo_ratios = {};
 
   append_title();
   append_info();
@@ -57,19 +59,63 @@ function stretch(geometry, points, axis) {
   return new_geo;
 }
 
+function resize_frame_dlo(panel_name, height) {
+  var frame_height = mesh_height(model);
+  var new_ratios = dlo_height_ratios(height, panel_name);
+  panel_dlo_ratios = new_ratios;
+  resize_height(frame_height, model);
+}
+
+function og_dlo_ratios() {
+  var ratios = {};
+  var panel_names = Object.keys(og_parts.panels).sort();
+  panel_names.forEach(function(panel_name, index) {
+    var og_dlo_ratio    = dlo_ratio(panel_name);
+    ratios[panel_name]  = og_dlo_ratio;
+  });
+  return ratios;
+}
+
+function dlo_height_ratios(height, panel_name) {
+  var new_ratios         = []
+  var parts              = meshes_as_parts(model,false);
+  var panel_names        = Object.keys(parts.panels).sort();
+  var dlo_sum            = panels_dlo_height_sum(parts);
+  var pheight            = panel_dlo_height(parts.panels[panel_name]);
+  var old_difference     = dlo_sum-pheight;
+  var new_difference     = dlo_sum-height;
+  new_ratios[panel_name] = height/dlo_sum;
+
+  panel_names.forEach(function(name, index) {
+    var panel = parts.panels[name];
+    if (name != panel_name) {
+      var height         = panel_dlo_height(panel);
+      var relative_ratio = height/old_difference;
+      var new_height     = relative_ratio*new_difference;
+      var new_ratio      = new_height/dlo_sum;
+      new_ratios[name]   = new_ratio;
+    }
+  });
+  return new_ratios;
+}
+
 function resize_height(height, object) {
+  // Note:  This method assumes a vertical assembly orientation
   // Frame, Rails, Panels
-  // Translate then scale then adjust(translate)
-  var og_object                = og_model;
-  var factor                   = height/mesh_height(og_object);
-  var og_frame_box             = mesh_box(og_object);
-  var parts                    = meshes_as_parts(object,false);
-  var og_parts                 = meshes_as_parts(og_object,true);
-  var og_frame_height          = og_frame_box.max.y-og_frame_box.min.y;	
-  var og_frame_width           = og_frame_box.max.y-og_frame_box.min.y;
+  // Translate then scale
+  var og_object        = og_model;
+  var factor           = height/mesh_height(og_object);
+  var og_frame_box     = mesh_box(og_object);
+  var parts            = meshes_as_parts(object,false);
+  var og_frame_height  = og_frame_box.max.y-og_frame_box.min.y;	
+  var og_frame_width   = og_frame_box.max.y-og_frame_box.min.y;
+
+  var ftparts = Object.keys(parts.frame['top']).sort();
+  var fbparts = Object.keys(parts.frame['bottom']).sort();
+  var flparts = Object.keys(parts.frame['left']).sort();
+  var frparts = Object.keys(parts.frame['right']).sort();
 
   // Translate frame top parts
-  var ftparts = Object.keys(parts.frame['top']).sort();
   ftparts.forEach(function(order) {
     var mesh        = parts.frame['top'][order];
     var new_height  = og_frame_height*factor;
@@ -78,7 +124,6 @@ function resize_height(height, object) {
   });
 
   // Translate frame bottom parts
-  var fbparts = Object.keys(parts.frame['bottom']).sort();
   fbparts.forEach(function(order) {
     var mesh        = parts.frame['bottom'][order];
     var new_height  = og_frame_height*factor;
@@ -87,7 +132,6 @@ function resize_height(height, object) {
   });
 
   // Scale frame left parts
-  var flparts = Object.keys(parts.frame['left']).sort();
   flparts.forEach(function(order) {
     var mesh          = parts.frame['left'][order];
     var og_mesh       = og_parts.frame['left'][order];
@@ -100,7 +144,6 @@ function resize_height(height, object) {
   });
 
   // Scale frame right parts
-  var frparts = Object.keys(parts.frame['right']).sort();
   frparts.forEach(function(order) {
     var mesh          = parts.frame['right'][order];
     var og_mesh       = og_parts.frame['right'][order];
@@ -112,14 +155,13 @@ function resize_height(height, object) {
     mesh.geometry     = new_geo;
   });
 
+  // Position panels
   var new_frame_height      = og_frame_height*factor;
   var vertical_frame_offset = total_height_offset(og_parts);
   var og_dlo_sum            = panels_dlo_height_sum(og_parts);
   var new_frame_dlo         = new_frame_height-vertical_frame_offset;
-
-  // Position panels
-  var panel_names = Object.keys(parts.panels).sort();
-  var colors     = {"a":"red","b":"blue","c":"green"}
+  var panel_names           = Object.keys(parts.panels).sort();
+  var colors                = {"a":"red","b":"blue","c":"green"}
 
   panel_names.forEach(function(panel_name, index) {
     var panel           = parts.panels[panel_name];
@@ -129,7 +171,7 @@ function resize_height(height, object) {
     var og_panel        = og_parts.panels[panel_name];
     var og_panel_height = panel_height(og_panel);
     var og_dlo_height   = panel_dlo_height(og_panel); 
-    var og_dlo_ratio    = og_dlo_height/og_dlo_sum;
+    var og_dlo_ratio    = panel_dlo_ratios[panel_name];
     var og_previous     = previous_vertical_panel_item(panel_name, og_parts);
     var og_previous_box = mesh_box(og_previous);
     var new_dlo_height  = new_frame_dlo*og_dlo_ratio;
@@ -226,14 +268,24 @@ function resize_height(height, object) {
     var center          = rtop-(height/2);
 
     // Offset between centers
-    var newpos          = center-og_center
-    mesh.position.y     = newpos;
+    var newpos      = center-og_center
+    mesh.position.y = newpos;
   });
 }
 
+function dlo_ratio(panel_name) {
+  var og_dlo_sum      = panels_dlo_height_sum(og_parts);
+  var og_panel        = og_parts.panels[panel_name];
+  var og_panel_height = panel_height(og_panel);
+  var og_dlo_height   = panel_dlo_height(og_panel); 
+  var og_dlo_ratio    = og_dlo_height/og_dlo_sum;
+  return og_dlo_ratio;
+}
+
 function resize_width(width, object) {
+  // Note:  This method assumes a vertical assembly orientation
   // Frame, Rails, Panels
-  // Translate then scale then adjust(translate)
+  // Translate then scale
   var og_object                  = og_model;
   var factor                     = width/mesh_width(og_object);
   var og_frame_box               = mesh_box(og_object);
@@ -249,7 +301,7 @@ function resize_width(width, object) {
   var frparts = Object.keys(parts.frame['right']).sort();
   var flparts = Object.keys(parts.frame['left']).sort();
 
-  // Translate frame sides
+  // Translate frame left side
   flparts.forEach(function(order) {
     var mesh        = parts.frame['left'][order];
     var new_width   = og_frame_width*factor;
@@ -257,6 +309,7 @@ function resize_width(width, object) {
     mesh.position.x = -new_pos;
   });
 
+  // Translate frame right side
   frparts.forEach(function(order) {
     var mesh        = parts.frame['right'][order];
     var new_width   = og_frame_width*factor;
@@ -288,6 +341,7 @@ function resize_width(width, object) {
     mesh.geometry     = new_geo;
   });
 
+  // Position panels
   // NOTE: Remember some of these vars are relative to orientation
   // Change later for doors
   var new_frame_width          = og_frame_width*factor;
@@ -295,7 +349,6 @@ function resize_width(width, object) {
   var new_frame_dlo            = new_frame_width-horizontal_frame_offset;
   var og_dlo_sum               = panels_dlo_width_sum(og_parts);
 
-  // Position panels
   var panel_names = Object.keys(parts.panels).sort();
   var colors     = {"a":"red","b":"blue","c":"green"}
 
@@ -446,8 +499,9 @@ function previous_vertical_panel_right_item(panel_name, parts) {
   return last_frame_top;
 }
 
+// sum of all horizontal part offsets
+// Note:: This assumes a vertical assembly orientation with no vertical rails
 function total_width_offset(parts) {
-  // sum of all horizontal part offsetd
   var sum = 0;
   var panel_names = Object.keys(parts.panels).sort();
   sum += panel_left_max(parts.panels[panel_names[0]]) - frame_left_min(parts.frame);
@@ -455,8 +509,8 @@ function total_width_offset(parts) {
   return sum;
 }
 
+// sum of all horizontal part offsets
 function total_height_offset(parts) {
-  // sum of all horizontal part offsets
   var sum = 0
   var panel_names = Object.keys(parts.panels).sort();
   sum += (frame_top_max(parts.frame) - panel_top_min(parts.panels[panel_names[0]]));
@@ -690,10 +744,12 @@ function init() {
       }
     }); 
 
-    model           = object;
-    og_model        = object.clone();
-    original_height = mesh_height(og_model);
-    original_width  = mesh_width(og_model);
+    model            = object;
+    og_model         = object.clone();
+    original_height  = mesh_height(og_model);
+    original_width   = mesh_width(og_model);
+    og_parts         = meshes_as_parts(og_model,true);
+    panel_dlo_ratios = og_dlo_ratios();
     scene.add(object);
     update_info();
   });
