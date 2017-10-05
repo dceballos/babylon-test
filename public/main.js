@@ -93,6 +93,7 @@ function stretch(mesh, points, axis) {
   var gap_center         = null;
   var cavity             = null;
   var center_x           = box_center.x;
+  var center_y           = box_center.y;
 
   // anything that ends up in this hash must be
   // a cavity
@@ -116,22 +117,36 @@ function stretch(mesh, points, axis) {
     gap_center  = max_local+(gap_length/2);
   }
 
-  var center_in_irregularity = (min_local < center_x) && (max_local > center_x);
-  var irregular_ys = Object.values(h);
-  irregular_ys.forEach(function(v) {
-    if (v > miny) {
-      cavity = true;
-    }else{
-      cavity = false;
-    }
-  });
+  if (axis == "x") {
+    var center_in_irregularity = (min_local < center_x) && (max_local > center_x);
+    var irregular_ys = Object.values(h);
+    irregular_ys.forEach(function(v) {
+      if (v > miny) {
+        cavity = true;
+      }else{
+        cavity = false;
+      }
+    });
+  }else{
+    var center_in_irregularity = (min_local < center_y) && (max_local > center_y);
+    var irregular_xs = Object.values(h);
+    irregular_xs.forEach(function(v) {
+      if (v < minx) {
+        cavity = true;
+      }else{
+        cavity = false;
+      }
+    });
+  }
 
   new_geo.boundingSphere = null;
   new_geo.boundingBox    = null;
   new_geo.vertices.forEach(function(v) {
-    if (v[axis] < (min_local || box_center[axis])) {
+    var left_pivot = (cavity == true ? min_local : box_center[axis]);
+    var right_pivot = (cavity == true ? max_local : box_center[axis]);
+    if (v[axis] < left_pivot) {
       v[axis] -= points/2;
-    }else if (v[axis] > (max_local || box_center[axis])) {
+    }else if (v[axis] > right_pivot) {
       v[axis] += points/2;
     }
   });
