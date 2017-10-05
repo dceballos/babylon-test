@@ -47,13 +47,67 @@ function stretch(geometry, points, axis) {
   geometry.computeBoundingBox();
   var new_geo            = geometry.clone();
   var box                = new_geo.boundingBox;
-  var stretch_point      = box.getCenter();
+  var box_center         = box.getCenter();
+  var stretch_point      = box_center[axis]-(box_center[axis]/2);
+  var stretch_point_two  = box_center[axis]+(box_center[axis]/2);
+  var minx               = box.min.x;
+  var maxx               = box.max.x;
+  var miny               = box.min.y;
+  var maxy               = box.max.y;
+  var centery            = box_center.y;
+  var centerx            = box_center.x;
+  var total_width        = maxx-minx; 
+
+  var h = {};
+
+  new_geo.vertices.forEach(function(v) {
+    if (v.y != miny && v.y != maxy) {
+      if (v.x != minx && v.x != maxx) {
+        h[v.x] = v.y;
+      }
+    }
+  });
+
+  var local_max_y_xs = [];
+  var local_max_y = Math.max.apply(null, Object.values(h));
+  Object.keys(h).forEach(function(key,index) {
+    if (h[key] == local_max_y) {
+      local_max_y_xs.push(key);
+    }
+  });
+
+  var min_local_x = Math.min.apply(null, local_max_y_xs);
+  var max_local_x = Math.min.apply(null, local_max_y_xs);
+  var gap_length  = max_local_x-min_local_x;
+  var first_stretch = min_local_x-minx;
+  var first_stretch_ratio = first_stretch/(total_width-gap_length);
+  var second_stretch = maxx-max_local_x;
+  var second_stretch_ratio = second_stretch/(total_width-gap_length);
+  var first_stretch_center = min_local_x-(first_stretch/2);
+  var second_stretch_center = maxx-(second_stretch/2);
+
+  var first_stretch_points = points*first_stretch_ratio;
+  var second_stretch_points = points*second_stretch_ratio; 
+
+  /*new_geo.boundingSphere = null;
+  new_geo.boundingBox    = null;
+  new_geo.vertices.forEach(function(v) {
+    if (v[axis] < min_local_x) {
+      v[axis] -= first_stretch_points/2;
+    }else if (v[axis] > max_local_x) {
+      v[axis] += second_stretch_points/2;
+    }
+  });*/
   new_geo.boundingSphere = null;
   new_geo.boundingBox    = null;
   new_geo.vertices.forEach(function(v) {
     if (v[axis] < stretch_point[axis]) {
       v[axis] -= points/2;
-    }else if (v[axis] > stretch_point[axis]) {
+    }else if (v[axis] > stretch_point && v[axis] < stretch_point_two) {
+      v[axis] += points/2;
+    }else if (v[axis] < stretch_point_two && v[axis] > stretch_point) {
+      v[axis] -= points/2;
+    }else if (v[axis] > stretch_point_two) {
       v[axis] += points/2;
     }
   });
