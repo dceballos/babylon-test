@@ -43,74 +43,99 @@ function do_width_resize() {
 // get center
 // anything less subtract
 // anything greater add
-function stretch(geometry, points, axis) {
+/*function stretch(geometry, points, axis) {
   geometry.computeBoundingBox();
   var new_geo            = geometry.clone();
   var box                = new_geo.boundingBox;
-  var box_center         = box.getCenter();
-  var stretch_point      = box_center[axis]-(box_center[axis]/2);
-  var stretch_point_two  = box_center[axis]+(box_center[axis]/2);
-  var minx               = box.min.x;
-  var maxx               = box.max.x;
-  var miny               = box.min.y;
-  var maxy               = box.max.y;
-  var centery            = box_center.y;
-  var centerx            = box_center.x;
-  var total_width        = maxx-minx; 
-
-  var h = {};
-
-  new_geo.vertices.forEach(function(v) {
-    if (v.y != miny && v.y != maxy) {
-      if (v.x != minx && v.x != maxx) {
-        h[v.x] = v.y;
-      }
-    }
-  });
-
-  var local_max_y_xs = [];
-  var local_max_y = Math.max.apply(null, Object.values(h));
-  Object.keys(h).forEach(function(key,index) {
-    if (h[key] == local_max_y) {
-      local_max_y_xs.push(key);
-    }
-  });
-
-  var min_local_x = Math.min.apply(null, local_max_y_xs);
-  var max_local_x = Math.min.apply(null, local_max_y_xs);
-  var gap_length  = max_local_x-min_local_x;
-  var first_stretch = min_local_x-minx;
-  var first_stretch_ratio = first_stretch/(total_width-gap_length);
-  var second_stretch = maxx-max_local_x;
-  var second_stretch_ratio = second_stretch/(total_width-gap_length);
-  var first_stretch_center = min_local_x-(first_stretch/2);
-  var second_stretch_center = maxx-(second_stretch/2);
-
-  var first_stretch_points = points*first_stretch_ratio;
-  var second_stretch_points = points*second_stretch_ratio; 
-
-  /*new_geo.boundingSphere = null;
-  new_geo.boundingBox    = null;
-  new_geo.vertices.forEach(function(v) {
-    if (v[axis] < min_local_x) {
-      v[axis] -= first_stretch_points/2;
-    }else if (v[axis] > max_local_x) {
-      v[axis] += second_stretch_points/2;
-    }
-  });*/
+  var stretch_point      = box.getCenter();
   new_geo.boundingSphere = null;
   new_geo.boundingBox    = null;
   new_geo.vertices.forEach(function(v) {
     if (v[axis] < stretch_point[axis]) {
       v[axis] -= points/2;
-    }else if (v[axis] > stretch_point && v[axis] < stretch_point_two) {
-      v[axis] += points/2;
-    }else if (v[axis] < stretch_point_two && v[axis] > stretch_point) {
-      v[axis] -= points/2;
-    }else if (v[axis] > stretch_point_two) {
+    }else if (v[axis] > stretch_point[axis]) {
       v[axis] += points/2;
     }
   });
+  return new_geo;
+}*/
+
+// get center
+// anything less subtract
+// anything greater add
+
+function intersects(x,y, geometry) {
+  var vector = new THREE.Vector2();
+  var raycaster = new THREE.Raycaster();
+  vector.x = x;
+  vector.y = y;
+  raycaster.setFromCamera(vector, camera);
+  var intersects = raycaster.intersectObjects(model.children); 
+  return intersects;
+}
+
+function stretch(mesh, points, axis) {
+  var geometry = mesh.geometry;
+  geometry.computeBoundingBox();
+  var new_geo            = geometry.clone();
+  var box                = new_geo.boundingBox;
+  var box_center         = box.getCenter();
+  var minx               = box.min.x;
+  var maxx               = box.max.x;
+  var width              = maxx-minx;
+  var miny               = box.min.y;
+  var maxy               = box.max.y;
+  var total_width        = maxx-minx; 
+  var total_height       = maxy-miny; 
+  var min_local          = null;
+  var max_local          = null;
+  var gap_length         = null;
+  var gap_center         = null;
+  var cavity             = null;
+  var center_x           = box_center.x;
+
+  // anything that ends up in this hash must be
+  // a cavity
+  var h = {};
+  new_geo.vertices.forEach(function(v) {
+    if (v.y != miny && v.y != maxy && v.x != minx && v.x != maxx) {
+      if (axis == "x") {
+        h[v.x] = v.y;
+      }else{
+        h[v.y] = v.x;
+      }
+    }
+  });
+
+  var irregular_points = Object.keys(h);
+  console.log(irregular_points);
+  if (irregular_points.length > 0) {
+    min_local = Math.min.apply(null, irregular_points);
+    max_local = Math.max.apply(null, irregular_points);
+    gap_length  = max_local-min_local;
+    gap_center  = max_local+(gap_length/2);
+  }
+
+  var center_in_irregularity = (min_local < center_x) && (max_local > center_x);
+  var irregular_ys = Object.values(h);
+  irregular_ys.forEach(function(v) {
+    if (v > miny) {
+      cavity = true;
+    }else{
+      cavity = false;
+    }
+  });
+
+  new_geo.boundingSphere = null;
+  new_geo.boundingBox    = null;
+  new_geo.vertices.forEach(function(v) {
+    if (v[axis] < (min_local || box_center[axis])) {
+      v[axis] -= points/2;
+    }else if (v[axis] > (max_local || box_center[axis])) {
+      v[axis] += points/2;
+    }
+  });
+
   return new_geo;
 }
 
@@ -212,7 +237,7 @@ function resize_width_horizontal(width, object) {
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
     var len_to_resize = new_width-og_width;
-    var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'x');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'x');
     mesh.geometry     = new_geo;
   });
 
@@ -224,7 +249,8 @@ function resize_width_horizontal(width, object) {
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
     var len_to_resize = new_width-og_width;
-    var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'x');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'x');
+    //var new_geo       = stretch(og_mesh, len_to_resize, 'x');
     mesh.geometry     = new_geo;
   });
 
@@ -284,7 +310,7 @@ function resize_width_horizontal(width, object) {
       var dlo_offset    = og_width-og_dlo_width;
       var new_width     = (new_frame_dlo*og_dlo_ratio)+dlo_offset;
       var len_to_resize = new_width-og_width;
-      var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'x');
+      var new_geo       = stretch(og_mesh, len_to_resize, 'x');
       mesh.geometry     = new_geo;
 
       // Re-center
@@ -305,7 +331,7 @@ function resize_width_horizontal(width, object) {
       var dlo_offset    = og_width-og_dlo_width;
       var new_width     = (new_frame_dlo*og_dlo_ratio)+dlo_offset;
       var len_to_resize = new_width-og_width;
-      var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'x');
+      var new_geo       = stretch(og_mesh, len_to_resize, 'x');
       mesh.geometry     = new_geo;
 
       // Re-center
@@ -387,7 +413,7 @@ function resize_height_horizontal(height, object) {
     var offset        = og_frame_height-og_height;
     var new_height    = (og_frame_height*factor)-offset;
     var len_to_resize = new_height-og_height;
-    var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'y');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'y');
     mesh.geometry     = new_geo;
   });
 
@@ -399,7 +425,7 @@ function resize_height_horizontal(height, object) {
     var offset        = og_frame_height-og_height;
     var new_height    = (og_frame_height*factor)-offset;
     var len_to_resize = new_height-og_height;
-    var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'y');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'y');
     mesh.geometry     = new_geo;
   });
 
@@ -455,7 +481,7 @@ function resize_height_horizontal(height, object) {
       var dlo_offset    = og_height-og_dlo_height;
       var new_height    = (new_frame_dlo*og_dlo_ratio)+dlo_offset;
       var len_to_resize = new_height-og_height;
-      var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'y');
+      var new_geo       = stretch(og_mesh, len_to_resize, 'y');
       mesh.geometry     = new_geo;
 
       // Re-center
@@ -477,7 +503,7 @@ function resize_height_horizontal(height, object) {
       var dlo_offset    = og_height-og_dlo_height;
       var new_height    = (new_frame_dlo*og_dlo_ratio)+dlo_offset;
       var len_to_resize = new_height-og_height;
-      var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'y');
+      var new_geo       = stretch(og_mesh, len_to_resize, 'y');
       mesh.geometry     = new_geo;
 
       // Re-center
@@ -502,7 +528,7 @@ function resize_height_horizontal(height, object) {
     var offset        = og_frame_height-og_height;
     var new_height    = (og_frame_height*factor)-offset;
     var len_to_resize = new_height-og_height;
-    var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'y');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'y');
     mesh.geometry     = new_geo;
   });
 }
@@ -547,7 +573,7 @@ function resize_height(height, object) {
     var offset        = og_frame_height-og_height;
     var new_height    = (og_frame_height*factor)-offset;
     var len_to_resize = new_height-og_height;
-    var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'y');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'y');
     mesh.geometry     = new_geo;
   });
 
@@ -559,7 +585,7 @@ function resize_height(height, object) {
     var offset        = og_frame_height-og_height;
     var new_height    = (og_frame_height*factor)-offset;
     var len_to_resize = new_height-og_height;
-    var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'y');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'y');
     mesh.geometry     = new_geo;
   });
 
@@ -616,7 +642,7 @@ function resize_height(height, object) {
       var dlo_offset    = og_height-og_dlo_height;
       var new_height    = (new_frame_dlo*og_dlo_ratio)+dlo_offset;
       var len_to_resize = new_height-og_height;
-      var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'y');
+      var new_geo       = stretch(og_mesh, len_to_resize, 'y');
       mesh.geometry     = new_geo;
 
       // Re-center
@@ -638,7 +664,7 @@ function resize_height(height, object) {
       var dlo_offset    = og_height-og_dlo_height;
       var new_height    = (new_frame_dlo*og_dlo_ratio)+dlo_offset;
       var len_to_resize = new_height-og_height;
-      var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'y');
+      var new_geo       = stretch(og_mesh, len_to_resize, 'y');
       mesh.geometry     = new_geo;
 
       // Re-center
@@ -742,7 +768,7 @@ function resize_width(width, object) {
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
     var len_to_resize = new_width-og_width;
-    var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'x');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'x');
     mesh.geometry     = new_geo;
   });
 
@@ -754,7 +780,7 @@ function resize_width(width, object) {
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
     var len_to_resize = new_width-og_width;
-    var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'x');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'x');
     mesh.geometry     = new_geo;
   });
 
@@ -806,7 +832,7 @@ function resize_width(width, object) {
       var offset        = og_frame_width-og_width;
       var new_width     = (og_frame_width*factor)-offset;
       var len_to_resize = new_width-og_width;
-      var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'x');
+      var new_geo       = stretch(og_mesh, len_to_resize, 'x');
       mesh.geometry     = new_geo;
     });
 
@@ -818,7 +844,7 @@ function resize_width(width, object) {
       var offset        = og_frame_width-og_width;
       var new_width     = (og_frame_width*factor)-offset;
       var len_to_resize = new_width-og_width;
-      var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'x');
+      var new_geo       = stretch(og_mesh, len_to_resize, 'x');
       mesh.geometry     = new_geo;
     });
   });
@@ -832,7 +858,7 @@ function resize_width(width, object) {
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
     var len_to_resize = new_width-og_width;
-    var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'x');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'x');
     mesh.geometry     = new_geo;
   });
 }
@@ -1376,6 +1402,7 @@ function update_mesh_info(mesh) {
   var position;
   var stack_pos;
   var length;
+  var width;
 
   if (type == "frame") {
     position = parts[2];
@@ -1392,11 +1419,14 @@ function update_mesh_info(mesh) {
 
   if (position == "top" || position == "bottom") {
     length = mesh_width(mesh);
+    width  = mesh_height(mesh);
   }else{
     length = mesh_height(mesh);
+    width  = mesh_width(mesh);
   }
 
   mesh_info.innerHTML = name.toUpperCase()+"<br/>ES Part #: "+ref.toUpperCase()+"<br/>Length: "+display_in_inches(length);
+  mesh_info.innerHTML += " width: "+display_in_inches(width);
 }
 
 function clear_mesh_info() {
