@@ -118,25 +118,17 @@ function stretch(mesh, points, axis) {
   }
 
   if (axis == "x") {
-    var center_in_irregularity = (min_local < center_x) && (max_local > center_x);
+    var irregularity_in_center = (min_local < center_x) && (max_local > center_x);
     var irregular_ys = Object.values(h);
-    irregular_ys.forEach(function(v) {
-      if (v > miny) {
-        cavity = true;
-      }else{
-        cavity = false;
-      }
-    });
+    var max_irr_y = Math.max(...irregular_ys);
+    var min_irr_y = Math.min(...irregular_ys);
+    cavity = (max_irr_y > miny+0.1) && max_irr_y != min_irr_y;
   }else{
-    var center_in_irregularity = (min_local < center_y) && (max_local > center_y);
+    var irregularity_in_center = (min_local < center_y) && (max_local > center_y);
     var irregular_xs = Object.values(h);
-    irregular_xs.forEach(function(v) {
-      if (v < minx) {
-        cavity = true;
-      }else{
-        cavity = false;
-      }
-    });
+    var max_irr_x = Math.max(...irregular_xs);
+    var min_irr_x = Math.min(...irregular_xs);
+    cavity = (max_irr_x > minx+0.1) && max_irr_x != min_irr_x;
   }
 
   new_geo.boundingSphere = null;
@@ -181,7 +173,7 @@ function og_horizontal_dlo_ratios() {
   var panel_names = Object.keys(og_parts.panels).sort();
   panel_names.forEach(function(panel_name, index) {
     var og_dlo_ratio    = horizontal_panels_dlo_ratio(panel_name);
-    ratios[panel_name]  = og_dlo_ratio;
+    ratios[panel_name]  = 0.5;//og_dlo_ratio;
   });
   return ratios;
 }
@@ -1157,6 +1149,12 @@ function panel_right_max(panel) {
   return box.max.x;
 }
 
+function panel_right_min(panel) {
+  var parts = Object.keys(panel['right']).sort();
+  var box = mesh_box(panel['right'][parts[parts.length-1]]);
+  return box.min.x;
+}
+
 function panel_left_min(panel) {
   var parts = Object.keys(panel['left']).sort();
   var box = mesh_box(panel['left'][parts[0]])
@@ -1165,27 +1163,11 @@ function panel_left_min(panel) {
 
 function panel_left_max(panel) {
   var parts = Object.keys(panel['left']).sort();
-  var max = mesh_box(panel['left'][parts[0]]).max.x;
-  parts.forEach(function(p) {
-    var box = mesh_box(panel['left'][p]);
-    if (box.max.x > max) {
-      max = box.max.x;
-    }
-  });
-  return max;
+  var box = mesh_box(panel['left'][parts[parts.length-1]]);
+  return box.max.x;
 }
 
-function panel_right_min(panel) {
-  var parts = Object.keys(panel['right']).sort();
-  var min = mesh_box(panel['right'][parts[0]]).min.x;
-  parts.forEach(function(p) {
-    var box = mesh_box(panel['right'][p]);
-    if (box.min.x < min) {
-      min = box.min.x;
-    }
-  });
-  return min;
-}
+
 
 function mesh_parts_from_name(mesh) {
   var mesh_parts = mesh.name.split("_").map(function(m) {
