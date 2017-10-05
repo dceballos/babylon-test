@@ -439,30 +439,17 @@ function resize_height_horizontal(height, object) {
     });
   });
 
-  // Position rails
+  // Scale rails
   var rparts = Object.keys(parts.rails).sort();
   rparts.forEach(function(order) {
-    var mesh = parts.rails[order];
-
-    // Compute original center
-    var og_previous_panel = previous_rail_panel(order, og_parts);
-    var og_next_panel     = next_rail_panel(order, og_parts);
-    var og_rtop           = panel_bottom_min(og_previous_panel);
-    var og_rbottom        = panel_top_max(og_next_panel);
-    var og_height         = og_rtop-og_rbottom;
-    var og_center         = og_rtop-(og_height/2);
-
-    // Compute new center
-    var previous_panel  = previous_rail_panel(order, parts);
-    var next_panel      = next_rail_panel(order, parts);
-    var rtop            = panel_bottom_min(previous_panel);
-    var rbottom         = panel_top_max(next_panel);
-    var height          = rtop-rbottom;
-    var center          = rtop-(height/2);
-
-    // Offset between centers
-    var newpos      = center-og_center
-    mesh.position.y = newpos;
+    var mesh          = parts.rails[order];
+    var og_mesh       = og_parts.rails[order];
+    var og_height     = mesh_height(og_mesh);
+    var offset        = og_frame_height-og_height;
+    var new_height    = (og_frame_height*factor)-offset;
+    var len_to_resize = new_height-og_height;
+    var new_geo       = stretch(og_mesh.geometry, len_to_resize, 'y');
+    mesh.geometry     = new_geo;
   });
 }
 
