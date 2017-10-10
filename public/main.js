@@ -1,9 +1,11 @@
 window.onload=function(){
+  if (orientation == null) {
+    alert("please selct orientation");
+  }
   title           = document.createElement('div');
   info            = document.createElement('div');
   mesh_info       = document.createElement('div');
 
-  orientation      = "horizontal";
   light            = null;
   model            = null;
   og_model         = null;
@@ -26,7 +28,7 @@ function do_height_resize() {
   var scaler     = document.getElementById("hscaler");
   var value      = (scaler.value/100)+1;
   var new_height = original_height*value;
-  resize_height_horizontal(new_height, model);
+  resize_height(new_height, model);
   update_info();
   update_mesh_info(current_mesh);
 }
@@ -35,15 +37,32 @@ function do_width_resize() {
   var scaler    = document.getElementById("wscaler");
   var value     = (scaler.value/100)+1;
   var new_width = original_width*value;
-  resize_width_horizontal(new_width, model);
+  resize_width(new_width, model);
   update_info();
   update_mesh_info(current_mesh);
+}
+
+function resize_width(new_width, model) {
+  if (orientation == "vertical") {
+    resize_width_vertical(new_width,model);
+  }else{
+    resize_width_horizontal(new_width,model);
+  }
+}
+
+function resize_height(new_height,model) {
+  if (orientation == "vertical") {
+    resize_height_vertical(new_height,model);
+  }else{
+    resize_height_horizontal(new_height,model);
+  }
 }
 
 // get center
 // anything less subtract
 // anything greater add
-/*function stretch(geometry, points, axis) {
+function stretch(mesh, points, axis) {
+  var geometry = mesh.geometry;
   geometry.computeBoundingBox();
   var new_geo            = geometry.clone();
   var box                = new_geo.boundingBox;
@@ -58,23 +77,11 @@ function do_width_resize() {
     }
   });
   return new_geo;
-}*/
-
-// get center
-// anything less subtract
-// anything greater add
-
-function intersects(x,y, geometry) {
-  var vector = new THREE.Vector2();
-  var raycaster = new THREE.Raycaster();
-  vector.x = x;
-  vector.y = y;
-  raycaster.setFromCamera(vector, camera);
-  var intersects = raycaster.intersectObjects(model.children); 
-  return intersects;
 }
 
-function stretch(mesh, points, axis) {
+// from center find where minx starts and minx ends
+// shizzy is hella eperimental and doesn't really work
+function stretch_irregular(mesh, points, axis) {
   var geometry = mesh.geometry;
   geometry.computeBoundingBox();
   var new_geo            = geometry.clone();
@@ -92,11 +99,13 @@ function stretch(mesh, points, axis) {
   var gap_length         = null;
   var gap_center         = null;
   var cavity             = null;
+  var cavity_up          = null;
+  var cavity_down        = null;
   var center_x           = box_center.x;
   var center_y           = box_center.y;
 
-  // anything that ends up in this hash must be
-  // a cavity
+  // anything that ends up in this hash is an irregular
+  // section
   var h = {};
   new_geo.vertices.forEach(function(v) {
     if (v.y != miny && v.y != maxy && v.x != minx && v.x != maxx) {
@@ -117,25 +126,32 @@ function stretch(mesh, points, axis) {
     gap_center  = max_local+(gap_length/2);
   }
 
+  // check if irregularity is in center
+  // if it is, figure out its boundaries
   if (axis == "x") {
     var irregularity_in_center = (min_local < center_x) && (max_local > center_x);
     var irregular_ys = Object.values(h);
     var max_irr_y = Math.max(...irregular_ys);
     var min_irr_y = Math.min(...irregular_ys);
-    cavity = (max_irr_y > miny+0.1) && max_irr_y != min_irr_y;
+    cavity_top     = (max_irr_y > miny+0.1) && max_irr_y != min_irr_y;
+    cavity_bottom  = (min_irr_y < maxy+0.1) && min_irr_y != max_irr_y;
+    cavity = cavity_top || cavity_bottom;
   }else{
     var irregularity_in_center = (min_local < center_y) && (max_local > center_y);
     var irregular_xs = Object.values(h);
     var max_irr_x = Math.max(...irregular_xs);
     var min_irr_x = Math.min(...irregular_xs);
-    cavity = (max_irr_x > minx+0.1) && max_irr_x != min_irr_x;
+    cavity_left  = (max_irr_x > minx+0.1) && max_irr_x != min_irr_x;
+    cavity_right = (min_irr_x < maxx+0.1) && min_irr_x != max_irr_x;
+    cavity = cavity_left || cavity_right;
   }
+  
+  var left_pivot = (cavity == true ? min_local : box_center[axis]);
+  var right_pivot = (cavity == true ? max_local : box_center[axis]);
 
   new_geo.boundingSphere = null;
   new_geo.boundingBox    = null;
   new_geo.vertices.forEach(function(v) {
-    var left_pivot = (cavity == true ? min_local : box_center[axis]);
-    var right_pivot = (cavity == true ? max_local : box_center[axis]);
     if (v[axis] < left_pivot) {
       v[axis] -= points/2;
     }else if (v[axis] > right_pivot) {
@@ -173,7 +189,7 @@ function og_horizontal_dlo_ratios() {
   var panel_names = Object.keys(og_parts.panels).sort();
   panel_names.forEach(function(panel_name, index) {
     var og_dlo_ratio    = horizontal_panels_dlo_ratio(panel_name);
-    ratios[panel_name]  = 0.5;//og_dlo_ratio;
+    ratios[panel_name]  = og_dlo_ratio;
   });
   return ratios;
 }
@@ -540,7 +556,7 @@ function resize_height_horizontal(height, object) {
   });
 }
 
-function resize_height(height, object) {
+function resize_height_vertical(height, object) {
   // Note:  This method assumes a vertical assembly orientation
   // Frame, Rails, Panels
   // Translate then scale
@@ -732,7 +748,7 @@ function vertical_panels_dlo_ratio(panel_name) {
   return og_dlo_ratio;
 }
 
-function resize_width(width, object) {
+function resize_width_vertical(width, object) {
   // Note:  This method assumes a vertical assembly orientation
   // Frame, Rails, Panels
   // Translate then scale
@@ -1351,7 +1367,7 @@ function append_title() {
   title.style.backgroundColor = 'transparent';
   title.style.zIndex = '1';
   title.style.fontFamily = 'Monospace';
-  title.innerHTML = "ES-8000";
+  title.innerHTML = name;
   document.body.appendChild(title);
 }
 
