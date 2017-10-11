@@ -61,7 +61,10 @@ function resize_height(new_height,model) {
 // get center
 // anything less subtract
 // anything greater add
-function stretch(mesh, points, axis) {
+function stretch(mesh, target_length, axis, stretch_interval_list = []) {
+  stretch_interval_list = [[0, 1]]
+  stretch_intervals = compute_stretch_intervals(stretch_interval_list, target_length)
+
   var geometry = mesh.geometry;
   geometry.computeBoundingBox();
   var new_geo            = geometry.clone();
@@ -70,14 +73,46 @@ function stretch(mesh, points, axis) {
   new_geo.boundingSphere = null;
   new_geo.boundingBox    = null;
   new_geo.vertices.forEach(function(v) {
+    var vertex_target_lenght = stretch_intervals
     if (v[axis] < stretch_point[axis]) {
-      v[axis] -= points/2;
+      var vertex_target_lenght = compute_vertex_target_lenght(stretch_intervals, -1)
+      v[axis] -= target_length/2;
     }else if (v[axis] > stretch_point[axis]) {
-      v[axis] += points/2;
+      v[axis] += target_length/2;
     }
   });
   return new_geo;
 }
+
+function compute_stretch_intervals(stretch_interval_list, target_length) {
+  // TODO: cache this value earlier
+  var total_stretch_length = calculate_total_stretch_length(stretch_interval_list)
+  var result = []
+  stretch_interval_list.map(function (stretch_interval) {
+    result << {
+      'interval': stretch_interval,
+      'target_length': interval_target_length(target_length, stretch_interval, total_stretch_length)
+    }
+  });
+}
+
+function interval_target_length(target_length, stretch_interval, total_stretch_length) {
+  return target_length * stretch_interval_length(stretch_interval) / total_stretch_length
+}
+
+function calculate_total_stretch_length(stretch_interval_list) {
+  stretch_interval_list.reduce(
+    function(total, stretch_interval) {
+      return total + stretch_interval_length(stretch_interval);
+    },
+    0
+  );
+}
+
+function stretch_interval_length(stretch_interval) {
+  return stretch_interval[1] - stretch_interval[0];
+}
+
 
 // from center find where minx starts and minx ends
 // shizzy is hella eperimental and doesn't really work
