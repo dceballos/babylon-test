@@ -1,8 +1,8 @@
 # 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
-# File Created: 10.10.2017 21:29:24
+# File Created: 15.10.2017 12:23:59
 
 #
-# object Layer_Frame_Left_1_Frame_Sliding_Jamb_ESEL102
+# object Layer_Frame_Left_1_ESEL102
 #
 
 v  -8.981506347656 -7.314848423004 1.327060699463
@@ -383,8 +383,8 @@ vn 0.301511347294 0.301511347294 -0.904534041882
 vn -0.301529228687 -0.904528677464 -0.301509529352
 # 162 vertex normals
 
-o Layer_Frame_Left_1_Frame_Sliding_Jamb_ESEL102
-g Layer_Frame_Left_1_Frame_Sliding_Jamb_ESEL102
+o Layer_Frame_Left_1_ESEL102
+g Layer_Frame_Left_1_ESEL102
 s 1
 f 1//1 2//2 3//3 4//4 
 f 4//4 3//3 5//5 
@@ -702,7 +702,7 @@ f 211//162 20//20 209//68 210//63
 # 200 polygons - 20 triangles
 
 #
-# object Layer_Frame_Top_1_Frame_Head_ESEL104_0_8d562_10d562_18d188
+# object Layer_Frame_Top_1_ESEL104_0_8d562_10d562_18d188
 #
 
 v  0.011917114258 7.812999725342 1.254377365112
@@ -1737,8 +1737,8 @@ vn -0.658136010170 -0.175788998604 -0.732089638710
 vn -0.658095896244 -0.489178717136 -0.572375714779
 # 496 vertex normals
 
-o Layer_Frame_Top_1_Frame_Head_ESEL104_0_8d562_10d562_18d188
-g Layer_Frame_Top_1_Frame_Head_ESEL104_0_8d562_10d562_18d188
+o Layer_Frame_Top_1_ESEL104_0_8d562_10d562_18d188
+g Layer_Frame_Top_1_ESEL104_0_8d562_10d562_18d188
 s 1
 f 213//163 214//164 215//165 
 f 215//165 214//164 216//166 
@@ -2561,7 +2561,7 @@ f 664//583 483//416 486//419 572//497
 # 468 polygons - 132 triangles
 
 #
-# object Layer_Frame_Bottom_1_Sill_ESEL201
+# object Layer_Frame_Bottom_1_ESEL201
 #
 
 v  -8.206405639648 -9.360000610352 1.999408721924
@@ -3827,8 +3827,8 @@ vn -0.577350199223 -0.577350318432 -0.577350318432
 vn -0.630304932594 0.297063410282 0.717264950275
 # 607 vertex normals
 
-o Layer_Frame_Bottom_1_Sill_ESEL201
-g Layer_Frame_Bottom_1_Sill_ESEL201
+o Layer_Frame_Bottom_1_ESEL201
+g Layer_Frame_Bottom_1_ESEL201
 s 1
 f 745//659 746//660 747//661 748//662 
 s 2
@@ -4810,7 +4810,7 @@ f 997//901 996//900 1318//1200 1286//1168
 # 641 polygons - 46 triangles
 
 #
-# object Layer_Frame_Right_1_Frame_Fixed_Jamb_ESEL101A
+# object Layer_Frame_Right_1_ESEL101A
 #
 
 v  8.496963500977 -6.690000057220 0.874408721924
@@ -5258,8 +5258,8 @@ vn 0.577350258827 0.577350258827 -0.577350318432
 vn -0.577352464199 0.577348291874 -0.577350080013
 # 201 vertex normals
 
-o Layer_Frame_Right_1_Frame_Fixed_Jamb_ESEL101A
-g Layer_Frame_Right_1_Frame_Fixed_Jamb_ESEL101A
+o Layer_Frame_Right_1_ESEL101A
+g Layer_Frame_Right_1_ESEL101A
 s 1
 f 1397//1266 1398//1267 1399//1268 1400//1269 
 f 1400//1269 1399//1268 1401//1270 1402//1271 
@@ -6610,7 +6610,7 @@ f 1891//1712 1892//1713 1893//1714 1894//1715
 # 277 polygons - 18 triangles
 
 #
-# object Layer_A_Right_1_Vent_Interlock_ESEL105
+# object Layer_Panel_A_Right_1_ESEL105
 #
 
 v  0.492187500000 7.315000534058 0.681211471558
@@ -7268,8 +7268,8 @@ vn -0.093011885881 0.592112183571 -0.800469815731
 vn 0.092808485031 0.592201471329 -0.800427377224
 # 307 vertex normals
 
-o Layer_A_Right_1_Vent_Interlock_ESEL105
-g Layer_A_Right_1_Vent_Interlock_ESEL105
+o Layer_Panel_A_Right_1_ESEL105
+g Layer_Panel_A_Right_1_ESEL105
 s 1
 f 1923//1742 1924//1743 1925//1744 1926//1745 
 f 1926//1745 1925//1744 1927//1746 
@@ -7772,7 +7772,7 @@ f 1979//1768 1939//1758 1938//1757 2255//1782
 # 330 polygons - 28 triangles
 
 #
-# object Layer_A_Left_1_Vent_Jamb_Stile_ESEL106
+# object Layer_Panel_A_Left_1_ESEL106
 #
 
 v  -6.937011718750 -6.941999435425 -0.761592864990
@@ -8561,8 +8561,8 @@ vn 0.688807010651 -0.611253798008 -0.389761060476
 vn 0.702669978142 -0.619091391563 0.350686043501
 # 368 vertex normals
 
-o Layer_A_Left_1_Vent_Jamb_Stile_ESEL106
-g Layer_A_Left_1_Vent_Jamb_Stile_ESEL106
+o Layer_Panel_A_Left_1_ESEL106
+g Layer_Panel_A_Left_1_ESEL106
 s 1
 f 2267//2049 2268//2050 2269//2051 2270//2052 
 f 2270//2052 2269//2051 2271//2053 2272//2054 
@@ -9162,7 +9162,7 @@ f 2623//2177 2622//2359 2427//2200 2428//2201
 # 401 polygons - 26 triangles
 
 #
-# object Layer_A_Bottom_1_Vent_Top___Bottom_Rail_2_ESEL203
+# object Layer_Panel_A_Bottom_1_ESEL203
 #
 
 v  -1.437500000000 -7.316999435425 -0.699590682983
@@ -9456,8 +9456,8 @@ vn -0.653209924698 -0.378535836935 -0.655764758587
 vn -0.653258919716 -0.000001449920 -0.757134616375
 # 125 vertex normals
 
-o Layer_A_Bottom_1_Vent_Top___Bottom_Rail_2_ESEL203
-g Layer_A_Bottom_1_Vent_Top___Bottom_Rail_2_ESEL203
+o Layer_Panel_A_Bottom_1_ESEL203
+g Layer_Panel_A_Bottom_1_ESEL203
 s 1
 f 2681//2417 2682//2418 2683//2419 2684//2420 
 f 2684//2420 2683//2419 2685//2421 2686//2422 
@@ -9706,7 +9706,7 @@ f 2727//2456 2733//2462 2837//2536 2836//2535
 # 152 polygons - 16 triangles
 
 #
-# object Layer_A_Top_1_Vent_Top___Bottom_Rail_1_ESEL203
+# object Layer_Panel_A_Top_1_ESEL203
 #
 
 v  -6.937454223633 7.815000534058 -0.699590682983
@@ -10001,8 +10001,8 @@ vn -0.653230786324 -0.378566086292 0.655726552010
 vn -0.678874313831 -0.095839902759 0.727972805500
 # 126 vertex normals
 
-o Layer_A_Top_1_Vent_Top___Bottom_Rail_1_ESEL203
-g Layer_A_Top_1_Vent_Top___Bottom_Rail_1_ESEL203
+o Layer_Panel_A_Top_1_ESEL203
+g Layer_Panel_A_Top_1_ESEL203
 s 1
 f 2843//2542 2844//2543 2845//2544 2846//2545 
 f 2846//2545 2845//2544 2847//2546 2848//2547 
@@ -10245,7 +10245,7 @@ f 2998//2635 2999//2664 2858//2557 2997//2638
 # 154 polygons - 12 triangles
 
 #
-# object Layer_B_Top_1_Glazing_Bead_1_ESEL109
+# object Layer_Panel_B_Top_1_Glazing_Bead_1_ESEL109
 #
 
 v  8.437995910645 7.187999725342 1.365949630737
@@ -10415,8 +10415,8 @@ vn 0.755615890026 -0.259792774916 0.601292192936
 vn 0.755680084229 -0.476894855499 0.448908597231
 # 75 vertex normals
 
-o Layer_B_Top_1_Glazing_Bead_1_ESEL109
-g Layer_B_Top_1_Glazing_Bead_1_ESEL109
+o Layer_Panel_B_Top_1_Glazing_Bead_1_ESEL109
+g Layer_Panel_B_Top_1_Glazing_Bead_1_ESEL109
 s 1
 f 3005//2668 3006//2669 3007//2670 3008//2671 
 s 2
@@ -10552,7 +10552,7 @@ f 3080//2732 3083//2735 3082//2734 3081//2733
 # 81 polygons - 10 triangles
 
 #
-# object Layer_B_Bottom_1_Glazing_Bead_2_ESEL109
+# object Layer_Panel_B_Bottom_1_ESEL109
 #
 
 v  1.437492370605 -6.739999771118 1.948951721191
@@ -10724,8 +10724,8 @@ vn -0.577350199223 -0.577350318432 0.577350318432
 vn -0.577350199223 0.577350318432 0.577350318432
 # 78 vertex normals
 
-o Layer_B_Bottom_1_Glazing_Bead_2_ESEL109
-g Layer_B_Bottom_1_Glazing_Bead_2_ESEL109
+o Layer_Panel_B_Bottom_1_ESEL109
+g Layer_Panel_B_Bottom_1_ESEL109
 s 1
 f 3093//2743 3094//2744 3095//2745 3096//2746 
 s 2
@@ -10858,7 +10858,7 @@ f 3111//2761 3117//2767 3115//2765 3113//2763
 # 81 polygons - 8 triangles
 
 #
-# object Layer_B_Right_1_Glazing_Bead_2_ESEL109
+# object Layer_Panel_B_Right_1_ESEL109
 #
 
 v  8.532989501953 -7.315001010895 1.366411209106
@@ -11033,8 +11033,8 @@ vn 0.655714452267 -0.653228223324 0.378591388464
 vn 0.301511317492 -0.904534041882 0.301511317492
 # 80 vertex normals
 
-o Layer_B_Right_1_Glazing_Bead_2_ESEL109
-g Layer_B_Right_1_Glazing_Bead_2_ESEL109
+o Layer_Panel_B_Right_1_ESEL109
+g Layer_Panel_B_Right_1_ESEL109
 s 1
 f 3180//2821 3181//2822 3182//2823 3183//2824 
 s 2
@@ -11166,7 +11166,7 @@ f 3208//2849 3206//2847 3220//2861
 # 82 polygons - 8 triangles
 
 #
-# object Layer_B_Left_2_Glazing_Bead_1_ESEL109
+# object Layer_Panel_B_Left_2_ESEL109
 #
 
 v  0.812500000000 -7.315001010895 1.999410629272
@@ -11341,8 +11341,8 @@ vn -0.655744373798 -0.653154671192 0.378666371107
 vn -0.378527522087 -0.653248250484 0.655731379986
 # 80 vertex normals
 
-o Layer_B_Left_2_Glazing_Bead_1_ESEL109
-g Layer_B_Left_2_Glazing_Bead_1_ESEL109
+o Layer_Panel_B_Left_2_ESEL109
+g Layer_Panel_B_Left_2_ESEL109
 s 1
 f 3268//2901 3269//2902 3270//2903 3271//2904 
 s 2
@@ -11475,7 +11475,7 @@ f 3276//2901 3274//2907 3278//2909
 # 82 polygons - 8 triangles
 
 #
-# object Layer_A_Bottom_2_Glazing_Bead_2_ESEL109
+# object Layer_Panel_A_Bottom_2_ESEL109
 #
 
 v  -1.437500000000 -6.742000102997 0.375408172607
@@ -11647,8 +11647,8 @@ vn 0.577350258827 -0.577350258827 0.577350258827
 vn 0.577350258827 -0.577350258827 -0.577350258827
 # 77 vertex normals
 
-o Layer_A_Bottom_2_Glazing_Bead_2_ESEL109
-g Layer_A_Bottom_2_Glazing_Bead_2_ESEL109
+o Layer_Panel_A_Bottom_2_ESEL109
+g Layer_Panel_A_Bottom_2_ESEL109
 s 1
 f 3356//2981 3357//2982 3358//2983 3359//2984 
 s 2
@@ -11781,7 +11781,7 @@ f 3372//2997 3376//3001 3374//2999
 # 83 polygons - 6 triangles
 
 #
-# object Layer_A_Top_2_Glazing_Bead_1_ESEL109
+# object Layer_Panel_A_Top_2_ESEL109
 #
 
 v  -1.437500000000 7.239999771118 -0.072591781616
@@ -11956,8 +11956,8 @@ vn 0.904534041882 0.301511317492 0.301511317492
 vn 0.577350318432 -0.577350258827 0.577350258827
 # 80 vertex normals
 
-o Layer_A_Top_2_Glazing_Bead_1_ESEL109
-g Layer_A_Top_2_Glazing_Bead_1_ESEL109
+o Layer_Panel_A_Top_2_ESEL109
+g Layer_Panel_A_Top_2_ESEL109
 s 1
 f 3444//3058 3445//3059 3446//3060 3447//3061 
 f 3446//3060 3445//3059 3448//3062 3449//3063 
@@ -12092,7 +12092,7 @@ f 3460//3074 3466//3080 3464//3078 3462//3076
 # 82 polygons - 8 triangles
 
 #
-# object Layer_A_Right_2_Glazing_Bead_2_ESEL109
+# object Layer_Panel_A_Right_2_ESEL109
 #
 
 v  -1.342529296875 -7.316999912262 -0.172590255737
@@ -12261,8 +12261,8 @@ vn -0.476815938950 -0.755679488182 0.448993414640
 vn -0.577350318432 -0.577350199223 0.577350318432
 # 75 vertex normals
 
-o Layer_A_Right_2_Glazing_Bead_2_ESEL109
-g Layer_A_Right_2_Glazing_Bead_2_ESEL109
+o Layer_Panel_A_Right_2_ESEL109
+g Layer_Panel_A_Right_2_ESEL109
 s 1
 f 3532//3138 3533//3139 3534//3140 3535//3141 
 s 2
@@ -12398,7 +12398,7 @@ f 3562//3167 3560//3165 3559//3164 3540//3145
 # 81 polygons - 8 triangles
 
 #
-# object Layer_A_Left_2_Glazing_Bead_1_ESEL109
+# object Layer_Panel_A_Left_2_ESEL109
 #
 
 v  -7.562011718750 -7.316999912262 0.425409317017
@@ -12569,8 +12569,8 @@ vn 0.577350258827 -0.577350258827 -0.577350258827
 vn 0.301511347294 -0.904534041882 0.301511347294
 # 76 vertex normals
 
-o Layer_A_Left_2_Glazing_Bead_1_ESEL109
-g Layer_A_Left_2_Glazing_Bead_1_ESEL109
+o Layer_Panel_A_Left_2_ESEL109
+g Layer_Panel_A_Left_2_ESEL109
 s 1
 f 3619//3213 3620//3214 3621//3215 3622//3216 
 s 2
@@ -12702,7 +12702,7 @@ f 3642//3236 3647//3241 3645//3239
 # 83 polygons - 6 triangles
 
 #
-# object Layer_Frame_Bottom_2_Sill_Track_ESEL202
+# object Layer_Frame_Bottom_2_ESEL202
 #
 
 v  -9.125000000000 -8.301672935486 -0.823011398315
@@ -12821,8 +12821,8 @@ vn 0.904534041882 0.301511347294 -0.301511347294
 vn 0.577350258827 0.577350258827 -0.577350258827
 # 56 vertex normals
 
-o Layer_Frame_Bottom_2_Sill_Track_ESEL202
-g Layer_Frame_Bottom_2_Sill_Track_ESEL202
+o Layer_Frame_Bottom_2_ESEL202
+g Layer_Frame_Bottom_2_ESEL202
 s 1
 f 3707//3289 3708//3290 3709//3291 3710//3292 
 f 3710//3292 3709//3291 3711//3293 3712//3294 
@@ -12908,7 +12908,7 @@ f 3743//3325 3746//3328 3745//3327 3744//3326
 # 52 polygons - 4 triangles
 
 #
-# object Layer_A_Left_3_Vent_Latch_SK084010
+# object Layer_Panel_A_Left_3_SK084010
 #
 
 v  -6.664062500000 -4.941999912262 -1.638900756836
@@ -13414,8 +13414,8 @@ vn -0.670226335526 0.656754612923 -0.345644384623
 vn 0.569139659405 0.656607389450 -0.494920969009
 # 219 vertex normals
 
-o Layer_A_Left_3_Vent_Latch_SK084010
-g Layer_A_Left_3_Vent_Latch_SK084010
+o Layer_Panel_A_Left_3_SK084010
+g Layer_Panel_A_Left_3_SK084010
 s 1
 f 3763//3345 3764//3346 3765//3347 3766//3348 
 s 2
@@ -13819,7 +13819,7 @@ f 4009//3551 4012//3416 4011//3418 4010//3419
 # 268 polygons - 16 triangles
 
 #
-# object Layer_Frame_Top_2_Head_Screw_Cover_ESEL114
+# object Layer_Frame_Top_2_ESEL114
 #
 
 v  9.062995910645 9.390573501587 0.603231430054
@@ -14029,8 +14029,8 @@ vn -0.577350258827 0.000000000000 0.816496610641
 vn -0.630304217339 -0.297062963247 0.717265784740
 # 101 vertex normals
 
-o Layer_Frame_Top_2_Head_Screw_Cover_ESEL114
-g Layer_Frame_Top_2_Head_Screw_Cover_ESEL114
+o Layer_Frame_Top_2_ESEL114
+g Layer_Frame_Top_2_ESEL114
 s 1
 f 4043//3564 4044//3565 4045//3566 4046//3567 
 s 2
@@ -14178,7 +14178,7 @@ f 4055//3576 4053//3574 4051//3572
 # 96 polygons - 8 triangles
 
 #
-# object Layer_Frame_Bottom_3_Sill_Raiser_ES2011
+# object Layer_Frame_Bottom_3_ES2011
 #
 
 v  -7.186279296875 -7.625009536743 -0.923591613770
@@ -14313,8 +14313,8 @@ vn 0.653223097324 0.195983394980 -0.731361806393
 vn 0.838665306568 0.000035239980 -0.544647097588
 # 62 vertex normals
 
-o Layer_Frame_Bottom_3_Sill_Raiser_ES2011
-g Layer_Frame_Bottom_3_Sill_Raiser_ES2011
+o Layer_Frame_Bottom_3_ES2011
+g Layer_Frame_Bottom_3_ES2011
 s 1
 f 4145//3665 4146//3666 4147//3667 4148//3666 
 f 4148//3666 4147//3667 4149//3668 4150//3669 
@@ -14415,7 +14415,7 @@ f 4208//3724 4206//3722 4207//3723
 # 62 polygons - 4 triangles
 
 #
-# object Layer_Frame_Right_2_Jamb_Screw_Cover_ESEL113A
+# object Layer_Frame_Right_2_ESEL113A
 #
 
 v  8.820953369141 -7.500000000000 -0.892589569092
@@ -14629,8 +14629,8 @@ vn -0.904533863068 -0.301511585712 -0.301511585712
 vn -0.577350258827 -0.577350258827 0.577350258827
 # 101 vertex normals
 
-o Layer_Frame_Right_2_Jamb_Screw_Cover_ESEL113A
-g Layer_Frame_Right_2_Jamb_Screw_Cover_ESEL113A
+o Layer_Frame_Right_2_ESEL113A
+g Layer_Frame_Right_2_ESEL113A
 s 1
 f 4211//3727 4212//3728 4213//3729 4214//3730 
 s 2

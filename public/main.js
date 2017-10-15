@@ -67,8 +67,6 @@ function stretch(mesh, points, axis) {
   var new_geo            = geometry.clone();
   var box                = new_geo.boundingBox;
   var stretch_point      = box.getCenter();
-  new_geo.boundingSphere = null;
-  new_geo.boundingBox    = null;
   new_geo.vertices.forEach(function(v) {
     if (v[axis] < stretch_point[axis]) {
       v[axis] -= points/2;
@@ -76,89 +74,6 @@ function stretch(mesh, points, axis) {
       v[axis] += points/2;
     }
   });
-  return new_geo;
-}
-
-// from center find where minx starts and minx ends
-// shizzy is hella eperimental and doesn't really work
-function stretch_irregular(mesh, points, axis) {
-  var geometry = mesh.geometry;
-  geometry.computeBoundingBox();
-  var new_geo            = geometry.clone();
-  var box                = new_geo.boundingBox;
-  var box_center         = box.getCenter();
-  var minx               = box.min.x;
-  var maxx               = box.max.x;
-  var width              = maxx-minx;
-  var miny               = box.min.y;
-  var maxy               = box.max.y;
-  var total_width        = maxx-minx; 
-  var total_height       = maxy-miny; 
-  var min_local          = null;
-  var max_local          = null;
-  var gap_length         = null;
-  var gap_center         = null;
-  var cavity             = null;
-  var cavity_up          = null;
-  var cavity_down        = null;
-  var center_x           = box_center.x;
-  var center_y           = box_center.y;
-
-  // anything that ends up in this hash is an irregular
-  // section
-  var h = {};
-  new_geo.vertices.forEach(function(v) {
-    if (v.y != miny && v.y != maxy && v.x != minx && v.x != maxx) {
-      if (axis == "x") {
-        h[v.x] = v.y;
-      }else{
-        h[v.y] = v.x;
-      }
-    }
-  });
-
-  var irregular_points = Object.keys(h);
-  console.log(irregular_points);
-  if (irregular_points.length > 0) {
-    min_local = Math.min.apply(null, irregular_points);
-    max_local = Math.max.apply(null, irregular_points);
-    gap_length  = max_local-min_local;
-    gap_center  = max_local+(gap_length/2);
-  }
-
-  // check if irregularity is in center
-  // if it is, figure out its boundaries
-  if (axis == "x") {
-    var irregularity_in_center = (min_local < center_x) && (max_local > center_x);
-    var irregular_ys = Object.values(h);
-    var max_irr_y = Math.max(...irregular_ys);
-    var min_irr_y = Math.min(...irregular_ys);
-    cavity_top     = (max_irr_y > miny+0.1) && max_irr_y != min_irr_y;
-    cavity_bottom  = (min_irr_y < maxy+0.1) && min_irr_y != max_irr_y;
-    cavity = cavity_top || cavity_bottom;
-  }else{
-    var irregularity_in_center = (min_local < center_y) && (max_local > center_y);
-    var irregular_xs = Object.values(h);
-    var max_irr_x = Math.max(...irregular_xs);
-    var min_irr_x = Math.min(...irregular_xs);
-    cavity_left  = (max_irr_x > minx+0.1) && max_irr_x != min_irr_x;
-    cavity_right = (min_irr_x < maxx+0.1) && min_irr_x != max_irr_x;
-    cavity = cavity_left || cavity_right;
-  }
-  
-  var left_pivot = (cavity == true ? min_local : box_center[axis]);
-  var right_pivot = (cavity == true ? max_local : box_center[axis]);
-
-  new_geo.boundingSphere = null;
-  new_geo.boundingBox    = null;
-  new_geo.vertices.forEach(function(v) {
-    if (v[axis] < left_pivot) {
-      v[axis] -= points/2;
-    }else if (v[axis] > right_pivot) {
-      v[axis] += points/2;
-    }
-  });
-
   return new_geo;
 }
 
@@ -225,7 +140,6 @@ function resize_width_horizontal(width, object) {
   var factor                     = width/mesh_width(og_object);
   var og_frame_box               = mesh_box(og_object);
   var parts                      = meshes_as_parts(object,false);
-  var og_parts                   = meshes_as_parts(og_object,true);
   var og_frame_height            = og_frame_box.max.y-og_frame_box.min.y;	
   var og_frame_width             = og_frame_box.max.x-og_frame_box.min.x;
   var og_horizontal_frame_offset = vertical_orientation_total_width_offset(og_parts);
@@ -238,7 +152,7 @@ function resize_width_horizontal(width, object) {
 
   // Translate frame left side
   flparts.forEach(function(order) {
-    var mesh        = parts.frame['left'][order];
+    var mesh        = parts.frame['left'][order]['mesh'];
     var new_width   = og_frame_width*factor;
     var new_pos     = ((new_width-og_frame_width)/2);
     mesh.position.x = -new_pos;
@@ -246,7 +160,7 @@ function resize_width_horizontal(width, object) {
 
   // Translate frame right side
   frparts.forEach(function(order) {
-    var mesh        = parts.frame['right'][order];
+    var mesh        = parts.frame['right'][order]['mesh'];
     var new_width   = og_frame_width*factor;
     var new_pos     = ((new_width-og_frame_width)/2);
     mesh.position.x = new_pos;
@@ -254,8 +168,8 @@ function resize_width_horizontal(width, object) {
 
   // Scale frame top parts
   ftparts.forEach(function(order) {
-    var mesh          = parts.frame['top'][order];
-    var og_mesh       = og_parts.frame['top'][order];
+    var mesh          = parts.frame['top'][order]['mesh'];
+    var og_mesh       = og_parts.frame['top'][order]['mesh'];
     var og_width      = mesh_width(og_mesh);
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
@@ -266,14 +180,13 @@ function resize_width_horizontal(width, object) {
 
   // Scale frame bottom parts
   fbparts.forEach(function(order) {
-    var mesh          = parts.frame['bottom'][order];
-    var og_mesh       = og_parts.frame['bottom'][order];
+    var mesh          = parts.frame['bottom'][order]['mesh'];
+    var og_mesh       = og_parts.frame['bottom'][order]['mesh'];
     var og_width      = mesh_width(og_mesh);
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
     var len_to_resize = new_width-og_width;
     var new_geo       = stretch(og_mesh, len_to_resize, 'x');
-    //var new_geo       = stretch(og_mesh, len_to_resize, 'x');
     mesh.geometry     = new_geo;
   });
 
@@ -306,8 +219,8 @@ function resize_width_horizontal(width, object) {
 
     // translate left parts
     plparts.forEach(function(part) {
-      var mesh         = panel['left'][part];
-      var og_mesh      = og_panel['left'][part];
+      var mesh         = panel['left'][part]['mesh'];
+      var og_mesh      = og_panel['left'][part]['mesh'];
       var og_prev_dist = previous_item_left_offset(og_mesh, og_previous);
       var box          = mesh_box(og_mesh) 
       var from         = mesh_box(previous).max.x+og_prev_dist;
@@ -317,8 +230,8 @@ function resize_width_horizontal(width, object) {
 
     // translate right parts
     prparts.forEach(function(part) {
-      var mesh        = panel['right'][part];
-      var og_mesh     = og_panel['right'][part];
+      var mesh        = panel['right'][part]['mesh'];
+      var og_mesh     = og_panel['right'][part]['mesh'];
       var og_box      = mesh_box(og_mesh) 
       var width       = mesh_width(mesh);
       var new_pos     = panel_left_max(panel)+new_dlo_width+(width/2);
@@ -327,8 +240,8 @@ function resize_width_horizontal(width, object) {
 
     // scale top parts
     ptparts.forEach(function(part) {
-      var mesh          = panel['top'][part];
-      var og_mesh       = og_panel['top'][part];
+      var mesh          = panel['top'][part]['mesh'];
+      var og_mesh       = og_panel['top'][part]['mesh'];
       var og_width      = mesh_width(og_mesh);
       var dlo_offset    = og_width-og_dlo_width;
       var new_width     = (new_frame_dlo*og_dlo_ratio)+dlo_offset;
@@ -348,8 +261,8 @@ function resize_width_horizontal(width, object) {
 
     // scale bottom parts
     pbparts.forEach(function(part) {
-      var mesh          = panel['bottom'][part];
-      var og_mesh       = og_panel['bottom'][part];
+      var mesh          = panel['bottom'][part]['mesh'];
+      var og_mesh       = og_panel['bottom'][part]['mesh'];
       var og_width      = mesh_width(og_mesh);
       var dlo_offset    = og_width-og_dlo_width;
       var new_width     = (new_frame_dlo*og_dlo_ratio)+dlo_offset;
@@ -371,7 +284,7 @@ function resize_width_horizontal(width, object) {
   // Position rails
   var rparts = Object.keys(parts.rails).sort();
   rparts.forEach(function(order) {
-    var mesh = parts.rails[order];
+    var mesh = parts.rails[order]['mesh'];
 
     // Compute original center
     var og_previous_panel = previous_rail_panel(order, og_parts);
@@ -414,7 +327,7 @@ function resize_height_horizontal(height, object) {
 
   // Translate frame top parts
   ftparts.forEach(function(order) {
-    var mesh        = parts.frame['top'][order];
+    var mesh        = parts.frame['top'][order]['mesh'];
     var new_height  = og_frame_height*factor;
     var new_pos     = ((new_height-og_frame_height)/2);
     mesh.position.y = new_pos;
@@ -422,7 +335,7 @@ function resize_height_horizontal(height, object) {
 
   // Translate frame bottom parts
   fbparts.forEach(function(order) {
-    var mesh        = parts.frame['bottom'][order];
+    var mesh        = parts.frame['bottom'][order]['mesh'];
     var new_height  = og_frame_height*factor;
     var new_pos     = ((new_height-og_frame_height)/2);
     mesh.position.y = -new_pos;
@@ -430,8 +343,8 @@ function resize_height_horizontal(height, object) {
 
   // Scale frame left parts
   flparts.forEach(function(order) {
-    var mesh          = parts.frame['left'][order];
-    var og_mesh       = og_parts.frame['left'][order];
+    var mesh          = parts.frame['left'][order]['mesh'];
+    var og_mesh       = og_parts.frame['left'][order]['mesh'];
     var og_height     = mesh_height(og_mesh);
     var offset        = og_frame_height-og_height;
     var new_height    = (og_frame_height*factor)-offset;
@@ -442,8 +355,8 @@ function resize_height_horizontal(height, object) {
 
   // Scale frame right parts
   frparts.forEach(function(order) {
-    var mesh          = parts.frame['right'][order];
-    var og_mesh       = og_parts.frame['right'][order];
+    var mesh          = parts.frame['right'][order]['mesh'];
+    var og_mesh       = og_parts.frame['right'][order]['mesh'];
     var og_height     = mesh_height(og_mesh);
     var offset        = og_frame_height-og_height;
     var new_height    = (og_frame_height*factor)-offset;
@@ -475,8 +388,8 @@ function resize_height_horizontal(height, object) {
     // translate top parts
     var ptparts = Object.keys(panel['top']).sort();
     ptparts.forEach(function(part) {
-      var mesh         = panel['top'][part];
-      var og_mesh      = og_panel['top'][part];
+      var mesh         = panel['top'][part]['mesh'];
+      var og_mesh      = og_panel['top'][part]['mesh'];
       var og_prev_dist = previous_item_top_offset(og_mesh, og_previous);
       var box          = mesh_box(og_mesh) 
       var from         = mesh_box(previous).max.y-og_prev_dist;
@@ -487,8 +400,8 @@ function resize_height_horizontal(height, object) {
     // translate bottom parts
     var pbparts = Object.keys(panel['bottom']).sort();
     pbparts.forEach(function(part) {
-      var mesh        = panel['bottom'][part];
-      var og_mesh     = og_panel['bottom'][part];
+      var mesh        = panel['bottom'][part]['mesh'];
+      var og_mesh     = og_panel['bottom'][part]['mesh'];
       var og_box      = mesh_box(og_mesh) 
       var height      = mesh_height(mesh);
       var new_pos     = panel_top_min(panel)-new_dlo_height-(height/2);
@@ -498,8 +411,8 @@ function resize_height_horizontal(height, object) {
     // scale left parts
     var plparts = Object.keys(panel['left']).sort();
     plparts.forEach(function(part) {
-      var mesh          = panel['left'][part];
-      var og_mesh       = og_panel['left'][part];
+      var mesh          = panel['left'][part]['mesh'];
+      var og_mesh       = og_panel['left'][part]['mesh'];
       var og_height     = mesh_height(og_mesh);
       var dlo_offset    = og_height-og_dlo_height;
       var new_height    = (new_frame_dlo*og_dlo_ratio)+dlo_offset;
@@ -520,8 +433,8 @@ function resize_height_horizontal(height, object) {
     // scale right parts
     var plparts = Object.keys(panel['right']).sort();
     plparts.forEach(function(part) {
-      var mesh          = panel['right'][part];
-      var og_mesh       = og_panel['right'][part];
+      var mesh          = panel['right'][part]['mesh'];
+      var og_mesh       = og_panel['right'][part]['mesh'];
       var og_height     = mesh_height(og_mesh);
       var dlo_offset    = og_height-og_dlo_height;
       var new_height    = (new_frame_dlo*og_dlo_ratio)+dlo_offset;
@@ -545,8 +458,8 @@ function resize_height_horizontal(height, object) {
   // Scale rails
   var rparts = Object.keys(parts.rails).sort();
   rparts.forEach(function(order) {
-    var mesh          = parts.rails[order];
-    var og_mesh       = og_parts.rails[order];
+    var mesh          = parts.rails[order]['mesh'];
+    var og_mesh       = og_parts.rails[order]['mesh'];
     var og_height     = mesh_height(og_mesh);
     var offset        = og_frame_height-og_height;
     var new_height    = (og_frame_height*factor)-offset;
@@ -574,7 +487,7 @@ function resize_height_vertical(height, object) {
 
   // Translate frame top parts
   ftparts.forEach(function(order) {
-    var mesh        = parts.frame['top'][order];
+    var mesh        = parts.frame['top'][order]['mesh'];
     var new_height  = og_frame_height*factor;
     var new_pos     = ((new_height-og_frame_height)/2);
     mesh.position.y = new_pos;
@@ -582,7 +495,7 @@ function resize_height_vertical(height, object) {
 
   // Translate frame bottom parts
   fbparts.forEach(function(order) {
-    var mesh        = parts.frame['bottom'][order];
+    var mesh        = parts.frame['bottom'][order]['mesh'];
     var new_height  = og_frame_height*factor;
     var new_pos     = ((new_height-og_frame_height)/2);
     mesh.position.y = -new_pos;
@@ -590,8 +503,8 @@ function resize_height_vertical(height, object) {
 
   // Scale frame left parts
   flparts.forEach(function(order) {
-    var mesh          = parts.frame['left'][order];
-    var og_mesh       = og_parts.frame['left'][order];
+    var mesh          = parts.frame['left'][order]['mesh'];
+    var og_mesh       = og_parts.frame['left'][order]['mesh'];
     var og_height     = mesh_height(og_mesh);
     var offset        = og_frame_height-og_height;
     var new_height    = (og_frame_height*factor)-offset;
@@ -602,8 +515,8 @@ function resize_height_vertical(height, object) {
 
   // Scale frame right parts
   frparts.forEach(function(order) {
-    var mesh          = parts.frame['right'][order];
-    var og_mesh       = og_parts.frame['right'][order];
+    var mesh          = parts.frame['right'][order]['mesh'];
+    var og_mesh       = og_parts.frame['right'][order]['mesh'];
     var og_height     = mesh_height(og_mesh);
     var offset        = og_frame_height-og_height;
     var new_height    = (og_frame_height*factor)-offset;
@@ -636,8 +549,8 @@ function resize_height_vertical(height, object) {
     // translate top parts
     var ptparts = Object.keys(panel['top']).sort();
     ptparts.forEach(function(part) {
-      var mesh         = panel['top'][part];
-      var og_mesh      = og_panel['top'][part];
+      var mesh         = panel['top'][part]['mesh'];
+      var og_mesh      = og_panel['top'][part]['mesh'];
       var og_prev_dist = previous_item_top_offset(og_mesh, og_previous);
       var box          = mesh_box(og_mesh) 
       var from         = mesh_box(previous).max.y-og_prev_dist;
@@ -648,8 +561,8 @@ function resize_height_vertical(height, object) {
     // translate bottom parts
     var pbparts = Object.keys(panel['bottom']).sort();
     pbparts.forEach(function(part) {
-      var mesh        = panel['bottom'][part];
-      var og_mesh     = og_panel['bottom'][part];
+      var mesh        = panel['bottom'][part]['mesh'];
+      var og_mesh     = og_panel['bottom'][part]['mesh'];
       var og_box      = mesh_box(og_mesh) 
       var height      = mesh_height(mesh);
       var new_pos     = panel_top_min(panel)-new_dlo_height-(height/2);
@@ -659,8 +572,8 @@ function resize_height_vertical(height, object) {
     // scale left parts
     var plparts = Object.keys(panel['left']).sort();
     plparts.forEach(function(part) {
-      var mesh          = panel['left'][part];
-      var og_mesh       = og_panel['left'][part];
+      var mesh          = panel['left'][part]['mesh'];
+      var og_mesh       = og_panel['left'][part]['mesh'];
       var og_height     = mesh_height(og_mesh);
       var dlo_offset    = og_height-og_dlo_height;
       var new_height    = (new_frame_dlo*og_dlo_ratio)+dlo_offset;
@@ -681,8 +594,8 @@ function resize_height_vertical(height, object) {
     // scale right parts
     var plparts = Object.keys(panel['right']).sort();
     plparts.forEach(function(part) {
-      var mesh          = panel['right'][part];
-      var og_mesh       = og_panel['right'][part];
+      var mesh          = panel['right'][part]['mesh'];
+      var og_mesh       = og_panel['right'][part]['mesh'];
       var og_height     = mesh_height(og_mesh);
       var dlo_offset    = og_height-og_dlo_height;
       var new_height    = (new_frame_dlo*og_dlo_ratio)+dlo_offset;
@@ -769,7 +682,7 @@ function resize_width_vertical(width, object) {
 
   // Translate frame left side
   flparts.forEach(function(order) {
-    var mesh        = parts.frame['left'][order];
+    var mesh        = parts.frame['left'][order]['mesh'];
     var new_width   = og_frame_width*factor;
     var new_pos     = ((new_width-og_frame_width)/2);
     mesh.position.x = -new_pos;
@@ -777,7 +690,7 @@ function resize_width_vertical(width, object) {
 
   // Translate frame right side
   frparts.forEach(function(order) {
-    var mesh        = parts.frame['right'][order];
+    var mesh        = parts.frame['right'][order]['mesh'];
     var new_width   = og_frame_width*factor;
     var new_pos     = ((new_width-og_frame_width)/2);
     mesh.position.x = new_pos;
@@ -785,8 +698,8 @@ function resize_width_vertical(width, object) {
 
   // Scale frame top parts
   ftparts.forEach(function(order) {
-    var mesh          = parts.frame['top'][order];
-    var og_mesh       = og_parts.frame['top'][order];
+    var mesh          = parts.frame['top'][order]['mesh'];
+    var og_mesh       = og_parts.frame['top'][order]['mesh'];
     var og_width      = mesh_width(og_mesh);
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
@@ -797,8 +710,8 @@ function resize_width_vertical(width, object) {
 
   // Scale frame bottom parts
   fbparts.forEach(function(order) {
-    var mesh          = parts.frame['bottom'][order];
-    var og_mesh       = og_parts.frame['bottom'][order];
+    var mesh          = parts.frame['bottom'][order]['mesh'];
+    var og_mesh       = og_parts.frame['bottom'][order]['mesh'];
     var og_width      = mesh_width(og_mesh);
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
@@ -835,22 +748,22 @@ function resize_width_vertical(width, object) {
 
     // translate left parts
     plparts.forEach(function(part) {
-      var mesh            = panel['left'][part];
+      var mesh            = panel['left'][part]['mesh'];
       var width           = mesh_width(mesh);
       mesh.position.x     = -(new_dlo_width-og_dlo_width)/2;
     });
 
     // translate right parts
     prparts.forEach(function(part) {
-      var mesh        = panel['right'][part];
+      var mesh        = panel['right'][part]['mesh'];
       var width       = mesh_width(mesh);
       mesh.position.x = (new_dlo_width-og_dlo_width)/2;
     });
 
     // scale top parts
     ptparts.forEach(function(part) {
-      var mesh          = panel['top'][part];
-      var og_mesh       = og_panel['top'][part];
+      var mesh          = panel['top'][part]['mesh'];
+      var og_mesh       = og_panel['top'][part]['mesh'];
       var og_width      = mesh_width(og_mesh);
       var offset        = og_frame_width-og_width;
       var new_width     = (og_frame_width*factor)-offset;
@@ -861,8 +774,8 @@ function resize_width_vertical(width, object) {
 
     // scale bottom parts
     pbparts.forEach(function(part) {
-      var mesh          = panel['bottom'][part];
-      var og_mesh       = og_panel['bottom'][part];
+      var mesh          = panel['bottom'][part]['mesh'];
+      var og_mesh       = og_panel['bottom'][part]['mesh'];
       var og_width      = mesh_width(og_mesh);
       var offset        = og_frame_width-og_width;
       var new_width     = (og_frame_width*factor)-offset;
@@ -875,8 +788,8 @@ function resize_width_vertical(width, object) {
   // Scale rail - same as top
   var rparts = Object.keys(parts.rails).sort();
   rparts.forEach(function(order) {
-    var mesh          = parts.rails[order];
-    var og_mesh       = og_parts.rails[order];
+    var mesh          = parts.rails[order]['mesh'];
+    var og_mesh       = og_parts.rails[order]['mesh'];
     var og_width      = mesh_width(og_mesh);
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
@@ -940,7 +853,7 @@ function previous_horizontal_panel_item(panel_name, parts) {
   var panel = parts.panels[panel_name];
   if (panel_name == "a") {
     var left_stack_items = Object.keys(parts.frame['left']).sort();
-    var last_frame_left = parts.frame['left'][left_stack_items[left_stack_items.length-1]];
+    var last_frame_left = parts.frame['left'][left_stack_items[left_stack_items.length-1]]['mesh'];
     return last_frame_left;
   }else{
     var panel_names = Object.keys(parts.panels).sort();
@@ -948,14 +861,14 @@ function previous_horizontal_panel_item(panel_name, parts) {
     var prev_panel_name = panel_names[current_panel_index-1];
     var prev_panel = parts.panels[prev_panel_name];
     var right_stack_items = Object.keys(prev_panel['right']).sort();
-    var last_panel_right = prev_panel['right'][right_stack_items[right_stack_items.length-1]];
+    var last_panel_right = prev_panel['right'][right_stack_items[right_stack_items.length-1]]['mesh'];
     return last_panel_right
   }
 }
 
 function previous_horizontal_vertical_panel_item(panel_name, parts) {
   var top_stack_items = Object.keys(parts.frame['top']).sort();
-  var last_frame_top = parts.frame['top'][top_stack_items[top_stack_items.length-1]];
+  var last_frame_top = parts.frame['top'][top_stack_items[top_stack_items.length-1]]['mesh'];
   return last_frame_top;
 }
 
@@ -963,7 +876,7 @@ function previous_vertical_panel_item(panel_name, parts) {
   var panel = parts.panels[panel_name];
   if (panel_name == "a") {
     var top_stack_items = Object.keys(parts.frame['top']).sort();
-    var last_frame_top = parts.frame['top'][top_stack_items[top_stack_items.length-1]];
+    var last_frame_top = parts.frame['top'][top_stack_items[top_stack_items.length-1]]['mesh'];
     return last_frame_top;
   }else{
     var panel_names = Object.keys(parts.panels);
@@ -971,20 +884,20 @@ function previous_vertical_panel_item(panel_name, parts) {
     var prev_panel_name = panel_names[current_panel_index-1];
     var prev_panel = parts.panels[prev_panel_name];
     var bottom_stack_items = Object.keys(prev_panel['bottom']).sort();
-    var last_panel_bottom = prev_panel['bottom'][bottom_stack_items[bottom_stack_items.length-1]];
+    var last_panel_bottom = prev_panel['bottom'][bottom_stack_items[bottom_stack_items.length-1]]['mesh'];
     return last_panel_bottom
   }
 }
 
 function previous_vertical_panel_left_item(panel_name, parts) {
   var top_stack_items = Object.keys(parts.frame['left']).sort();
-  var last_frame_top  = parts.frame['left'][top_stack_items[top_stack_items.length-1]];
+  var last_frame_top  = parts.frame['left'][top_stack_items[top_stack_items.length-1]]['mesh'];
   return last_frame_top;
 }
 
 function previous_vertical_panel_right_item(panel_name, parts) {
   var top_stack_items = Object.keys(parts.frame['right']).sort();
-  var last_frame_top  = parts.frame['right'][top_stack_items[top_stack_items.length-1]];
+  var last_frame_top  = parts.frame['right'][top_stack_items[top_stack_items.length-1]]['mesh'];
   return last_frame_top;
 }
 
@@ -1113,73 +1026,73 @@ function panel_width(panel) {
 
 function frame_top_max(frame) {
   var parts = Object.keys(frame['top']).sort();
-  var box = mesh_box(frame['top'][parts[0]])
+  var box = mesh_box(frame['top'][parts[0]]['mesh'])
   return box.max.y;
 }
 
 function frame_bottom_min(frame) {
   var parts = Object.keys(frame['bottom']).sort();
-  var box = mesh_box(frame['bottom'][parts[0]])
+  var box = mesh_box(frame['bottom'][parts[0]]['mesh'])
   return box.min.y;
 }
 
 function frame_left_min(frame) {
   var parts = Object.keys(frame['left']).sort();
-  var box = mesh_box(frame['left'][parts[0]])
+  var box = mesh_box(frame['left'][parts[0]]['mesh'])
   return box.min.x;
 }
 
 function frame_right_max(frame) {
   var parts = Object.keys(frame['right']).sort();
-  var box = mesh_box(frame['right'][parts[0]])
+  var box = mesh_box(frame['right'][parts[0]]['mesh'])
   return box.max.x;
 }
 
 function panel_bottom_max(panel) {
   var parts = Object.keys(panel['bottom']).sort();
-  var box = mesh_box(panel['bottom'][parts[parts.length-1]])
+  var box = mesh_box(panel['bottom'][parts[parts.length-1]]['mesh'])
   return box.max.y;
 }
 
 function panel_top_min(panel) {
   var parts = Object.keys(panel['top']).sort();
-  var box = mesh_box(panel['top'][parts[parts.length-1]])
+  var box = mesh_box(panel['top'][parts[parts.length-1]]['mesh'])
   return box.min.y;
 }
 
 function panel_top_max(panel) {
   var parts = Object.keys(panel['top']).sort();
-  var box = mesh_box(panel['top'][parts[0]])
+  var box = mesh_box(panel['top'][parts[0]]['mesh'])
   return box.max.y;
 }
 
 function panel_bottom_min(panel) {
   var parts = Object.keys(panel['bottom']).sort();
-  var box = mesh_box(panel['bottom'][parts[0]])
+  var box = mesh_box(panel['bottom'][parts[0]]['mesh'])
   return box.min.y;
 }
 
 function panel_right_max(panel) {
   var parts = Object.keys(panel['right']).sort();
-  var box = mesh_box(panel['right'][parts[0]])
+  var box = mesh_box(panel['right'][parts[0]]['mesh'])
   return box.max.x;
 }
 
 function panel_right_min(panel) {
   var parts = Object.keys(panel['right']).sort();
-  var box = mesh_box(panel['right'][parts[parts.length-1]]);
+  var box = mesh_box(panel['right'][parts[parts.length-1]]['mesh']);
   return box.min.x;
 }
 
 function panel_left_min(panel) {
   var parts = Object.keys(panel['left']).sort();
-  var box = mesh_box(panel['left'][parts[0]])
+  var box = mesh_box(panel['left'][parts[0]]['mesh'])
   return box.min.x;
 }
 
 function panel_left_max(panel) {
   var parts = Object.keys(panel['left']).sort();
-  var box = mesh_box(panel['left'][parts[parts.length-1]]);
+  var box = mesh_box(panel['left'][parts[parts.length-1]]['mesh']);
   return box.max.x;
 }
 
@@ -1192,38 +1105,59 @@ function mesh_parts_from_name(mesh) {
   return mesh_parts;
 }
 
+function parse_stretch_points(mesh_parts) {
+  if (mesh_parts.length < 6) return null;
+  var points = mesh_parts.slice(5).reduce(function(result, value, index, array) {
+    if (index % 2 === 0)
+      result.push(array.slice(index, index + 2));
+    return result;
+  }, []);
+  return points;
+}
+
 function meshes_as_parts(object, clone) {
   // ie: Layer_A_Top_1_Glazing_Bead_Fixed__1_ESEL110
   var parts = {frame:{}, panels:{}, rails:{}};
   object.children.forEach(function(mesh) {
-    var mesh_parts = mesh_parts_from_name(mesh);
+    var mesh_parts     = mesh_parts_from_name(mesh);
+    var stretch_points = parse_stretch_points(mesh_parts);
     var name = mesh_parts[1];
     if (name == "frame") {
       var position = mesh_parts[2];
       var stack_pos = mesh_parts[3];
       if (parts[name][position]) {
-        parts[name][position][stack_pos] = clone ? mesh.clone() : mesh;
+        parts[name][position][stack_pos] = {'mesh':(clone ? mesh.clone() : mesh)};
       }else{
         parts[name][position] = {};
-        parts[name][position][stack_pos] = clone ? mesh.clone() : mesh;
+        parts[name][position][stack_pos] = {'mesh':(clone ? mesh.clone() : mesh)};
+      }
+      if (stretch_points) {
+        parts[name][position][stack_pos]['stretch_points'] = stretch_points;
       }
     }else if (name == "rail") {
       var position = mesh_parts[2];
-      parts['rails'][position] = clone ? mesh.clone() : mesh;
-    }else if (name.length == 1) {
-      var position = mesh_parts[2];
-      var stack_pos = mesh_parts[3];
-      if (parts['panels'][name]) {
-        if (parts['panels'][name][position]) {
-          parts['panels'][name][position][stack_pos] = clone ? mesh.clone() : mesh;
+      parts['rails'][position] = {'mesh':(clone ? mesh.clone() : mesh)};
+      if (stretch_points) {
+        parts['rails'][position]['stretch_points'] = stretch_points;
+      }
+    }else if (name == "panel") {
+      var panel_name = mesh_parts[2];
+      var position   = mesh_parts[3];
+      var stack_pos  = mesh_parts[4];
+      if (parts['panels'][panel_name]) {
+        if (parts['panels'][panel_name][position]) {
+          parts['panels'][panel_name][position][stack_pos] = {'mesh':(clone ? mesh.clone() : mesh)};
         }else{
-          parts['panels'][name][position] = {};
-          parts['panels'][name][position][stack_pos] = clone ? mesh.clone() : mesh;
+          parts['panels'][panel_name][position] = {};
+          parts['panels'][panel_name][position][stack_pos] = {'mesh':(clone ? mesh.clone() : mesh)};
         }
       }else{
-        parts['panels'][name] = {};
-        parts['panels'][name][position] = {};
-        parts['panels'][name][position][stack_pos] = clone ? mesh.clone() : mesh;
+        parts['panels'][panel_name] = {};
+        parts['panels'][panel_name][position] = {};
+        parts['panels'][panel_name][position][stack_pos] = {'mesh':(clone ? mesh.clone() : mesh)};
+      }
+      if (stretch_points) {
+        parts['panels'][panel_name][position][stack_pos]['stretch_points'] = stretch_points;
       }
     }
   });
@@ -1257,6 +1191,7 @@ function init() {
   loader.load(obj_file, function ( object ) {
     object.name = "esmodel";
     object.children.forEach(function(mesh) {
+      console.log(mesh.name);
       var geometry = new THREE.Geometry().fromBufferGeometry(mesh.geometry);
       mesh.geometry = geometry;
       mesh.geometry.dynamic = true;
