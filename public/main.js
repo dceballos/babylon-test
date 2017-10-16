@@ -68,25 +68,29 @@ function stretch(mesh, points, axis, stretch_intervals=[]) {
   var bounding_box         = new_geo.boundingBox;
   var interval_ratios      = stretch_interval_ratios(mesh, axis, stretch_intervals);
 	var translated_intervals = translate_stretch_intervals(interval_ratios, bounding_box, axis);
-	var points_per_interval  = points/interval_ratios.length;
+	var center               = bounding_box.getCenter()[axis];
 	translated_intervals.forEach(function(interval) {
 		var int_len = interval[1]-interval[0];
-		var center  = interval[0]+(int_len/2);
 		new_geo.vertices.forEach(function(v) {
 			if (v[axis] >= interval[0] && v[axis] <= interval[1] && v[axis] < center) {
-				v[axis] -= points_per_interval/2;
+				v[axis] -= points/2;
 			}else if (v[axis] >= interval[0] && v[axis] <= interval[1] && v[axis] > center) {
-				v[axis] += points_per_interval/2;
+				v[axis] += points/2;
+			}else{
 			}
 		});
 	});
   return new_geo;
 }
 
+function truncate(number) {
+ return Math.floor(number * 1000) / 1000.0;
+}
+
 function translate_stretch_intervals(ratios, box, axis) {
 	var min = box.min[axis];
 	var max = box.max[axis];
-	var len = max-min
+	var len = max-min;
 	var intervals = ratios.map(function(ratio_pair) {
 		var start_vertex = min+(len*ratio_pair[0]);
 		var end_vertex   = min+(len*ratio_pair[1]);
@@ -1269,7 +1273,7 @@ function init() {
         current_mesh = mesh;
       }
 			if (mesh.name != 'Layer_Frame_Top_1_ESEL104_0_8d562_10d562_18d188' && mesh.name != "Layer_Frame_Bottom_1_ESEL201_0_8d563_10d563_18d188") {
-				//mesh.visible = false;
+				mesh.visible = false;
 			}
     }); 
 
