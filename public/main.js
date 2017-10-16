@@ -61,20 +61,50 @@ function resize_height(new_height,model) {
 // get center
 // anything less subtract
 // anything greater add
-function stretch(mesh, points, axis) {
+function stretch(mesh, points, axis, stretch_intervals=[]) {
   var geometry = mesh.geometry;
   geometry.computeBoundingBox();
-  var new_geo            = geometry.clone();
-  var box                = new_geo.boundingBox;
-  var stretch_point      = box.getCenter();
-  new_geo.vertices.forEach(function(v) {
-    if (v[axis] < stretch_point[axis]) {
-      v[axis] -= points/2;
-    }else if (v[axis] > stretch_point[axis]) {
-      v[axis] += points/2;
-    }
-  });
+  var new_geo              = geometry.clone();
+  var bounding_box         = new_geo.boundingBox;
+  var interval_ratios      = stretch_interval_ratios(mesh, axis, stretch_intervals);
+	var translated_intervals = translate_stretch_intervals(interval_ratios, bounding_box, axis);
+	var points_per_interval  = points/interval_ratios.length;
+	translated_intervals.forEach(function(interval) {
+		var int_len = interval[1]-interval[0];
+		var center  = interval[0]+(int_len/2);
+		new_geo.vertices.forEach(function(v) {
+			if (v[axis] >= interval[0] && v[axis] <= interval[1] && v[axis] < center) {
+				v[axis] -= points_per_interval/2;
+			}else if (v[axis] >= interval[0] && v[axis] <= interval[1] && v[axis] > center) {
+				v[axis] += points_per_interval/2;
+			}
+		});
+	});
   return new_geo;
+}
+
+function translate_stretch_intervals(ratios, box, axis) {
+	var min = box.min[axis];
+	var max = box.max[axis];
+	var len = max-min
+	var intervals = ratios.map(function(ratio_pair) {
+		var start_vertex = min+(len*ratio_pair[0]);
+		var end_vertex   = min+(len*ratio_pair[1]);
+		return [start_vertex, end_vertex];
+	});
+	return intervals;
+}
+
+function stretch_interval_ratios(mesh, axis, intervals) {
+	if (intervals.length == 0) return [[0,1]]
+	var mesh_len = mesh_length(mesh,axis);
+	var ratios   = intervals.map(function(pair) {
+		var a = [];
+		a[0]  = pair[0]/mesh_len;
+		a[1]  = pair[1]/mesh_len;
+		return a;
+	});
+	return ratios;
 }
 
 function resize_panel_dlo(panel_name, height) {
@@ -170,11 +200,12 @@ function resize_width_horizontal(width, object) {
   ftparts.forEach(function(order) {
     var mesh          = parts.frame['top'][order]['mesh'];
     var og_mesh       = og_parts.frame['top'][order]['mesh'];
+		var s_intervals   = og_parts.frame['top'][order]['stretch_intervals'];
     var og_width      = mesh_width(og_mesh);
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
     var len_to_resize = new_width-og_width;
-    var new_geo       = stretch(og_mesh, len_to_resize, 'x');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'x', s_intervals);
     mesh.geometry     = new_geo;
   });
 
@@ -182,11 +213,12 @@ function resize_width_horizontal(width, object) {
   fbparts.forEach(function(order) {
     var mesh          = parts.frame['bottom'][order]['mesh'];
     var og_mesh       = og_parts.frame['bottom'][order]['mesh'];
+		var s_intervals   = og_parts.frame['bottom'][order]['stretch_intervals'];
     var og_width      = mesh_width(og_mesh);
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
     var len_to_resize = new_width-og_width;
-    var new_geo       = stretch(og_mesh, len_to_resize, 'x');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'x', s_intervals);
     mesh.geometry     = new_geo;
   });
 
@@ -814,6 +846,13 @@ function mesh_width(mesh) {
   return box.max.x - box.min.x;
 }
 
+function mesh_length(mesh,axis) {
+	if (axis == 'x') {
+		return mesh_width(mesh);
+	}
+	return mesh_height(mesh);
+}
+
 function previous_rail_panel(rail, parts) {
   var rails_keys = Object.keys(parts.rails);
   var rail_index = rails_keys.indexOf(rail);
@@ -1105,22 +1144,44 @@ function mesh_parts_from_name(mesh) {
   return mesh_parts;
 }
 
-function parse_stretch_points(mesh_parts) {
-  if (mesh_parts.length < 6) return null;
+function parse_stretch_interval_float(point) {
+	return parseFloat(point.split("d").join("."));
+}
+
+function parse_stretch_intervals(mesh_parts) {
+  if (mesh_parts.length < stretch_interval_first_index(mesh_parts)+1) return null;
   var points = mesh_parts.slice(5).reduce(function(result, value, index, array) {
-    if (index % 2 === 0)
+    if (index % 2 === 0) {
       result.push(array.slice(index, index + 2));
+		}	
     return result;
   }, []);
-  return points;
+	var intervals = points.map(function(pair) {
+		return [
+			parse_stretch_interval_float(pair[0]),
+			parse_stretch_interval_float(pair[1])
+		];
+	});
+  return intervals;
+}
+
+function stretch_interval_first_index(parts) {
+	var name = parts[1];
+	if (name == 'frame') {
+		return 5;
+	}else if (name == 'rail') {
+		return 4;
+	}else if (name == 'panel') {
+		return 6;
+	}
 }
 
 function meshes_as_parts(object, clone) {
   // ie: Layer_A_Top_1_Glazing_Bead_Fixed__1_ESEL110
   var parts = {frame:{}, panels:{}, rails:{}};
   object.children.forEach(function(mesh) {
-    var mesh_parts     = mesh_parts_from_name(mesh);
-    var stretch_points = parse_stretch_points(mesh_parts);
+    var mesh_parts        = mesh_parts_from_name(mesh);
+    var stretch_intervals = parse_stretch_intervals(mesh_parts);
     var name = mesh_parts[1];
     if (name == "frame") {
       var position = mesh_parts[2];
@@ -1131,15 +1192,19 @@ function meshes_as_parts(object, clone) {
         parts[name][position] = {};
         parts[name][position][stack_pos] = {'mesh':(clone ? mesh.clone() : mesh)};
       }
-      if (stretch_points) {
-        parts[name][position][stack_pos]['stretch_points'] = stretch_points;
-      }
+      if (stretch_intervals) {
+        parts[name][position][stack_pos]['stretch_intervals'] = stretch_intervals;
+      }else{
+        parts[name][position][stack_pos]['stretch_intervals'] = [];
+			}
     }else if (name == "rail") {
       var position = mesh_parts[2];
       parts['rails'][position] = {'mesh':(clone ? mesh.clone() : mesh)};
-      if (stretch_points) {
-        parts['rails'][position]['stretch_points'] = stretch_points;
-      }
+      if (stretch_intervals) {
+        parts['rails'][position]['stretch_intervals'] = stretch_intervals;
+      }else{
+        parts['rails'][position]['stretch_intervals'] = [];
+			}
     }else if (name == "panel") {
       var panel_name = mesh_parts[2];
       var position   = mesh_parts[3];
@@ -1156,9 +1221,11 @@ function meshes_as_parts(object, clone) {
         parts['panels'][panel_name][position] = {};
         parts['panels'][panel_name][position][stack_pos] = {'mesh':(clone ? mesh.clone() : mesh)};
       }
-      if (stretch_points) {
-        parts['panels'][panel_name][position][stack_pos]['stretch_points'] = stretch_points;
-      }
+      if (stretch_intervals) {
+        parts['panels'][panel_name][position][stack_pos]['stretch_intervals'] = stretch_intervals;
+      }else{
+        parts['panels'][panel_name][position][stack_pos]['stretch_intervals'] = [];
+			}
     }
   });
   return parts;
@@ -1201,6 +1268,9 @@ function init() {
         select_color(mesh);
         current_mesh = mesh;
       }
+			if (mesh.name != 'Layer_Frame_Top_1_ESEL104_0_8d562_10d562_18d188' && mesh.name != "Layer_Frame_Bottom_1_ESEL201_0_8d563_10d563_18d188") {
+				mesh.visible = false;
+			}
     }); 
 
     model            = object;
@@ -1352,7 +1422,7 @@ function update_mesh_info(mesh) {
   var length;
   var width;
 
-  if (type == "frame") {
+/*  if (type == "frame") {
     position = parts[2];
     stack_pos = parts[3];
     name = parts.slice(4,parts.length-1).join(" ");
@@ -1374,7 +1444,7 @@ function update_mesh_info(mesh) {
   }
 
   mesh_info.innerHTML = name.toUpperCase()+"<br/>ES Part #: "+ref.toUpperCase()+"<br/>Length: "+display_in_inches(length);
-  mesh_info.innerHTML += " width: "+display_in_inches(width);
+  mesh_info.innerHTML += " width: "+display_in_inches(width);*/
 }
 
 function clear_mesh_info() {

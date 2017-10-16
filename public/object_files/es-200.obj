@@ -1,5 +1,5 @@
 # 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
-# File Created: 15.10.2017 12:23:59
+# File Created: 15.10.2017 16:36:05
 
 #
 # object Layer_Frame_Left_1_ESEL102
@@ -2561,7 +2561,7 @@ f 664//583 483//416 486//419 572//497
 # 468 polygons - 132 triangles
 
 #
-# object Layer_Frame_Bottom_1_ESEL201
+# object Layer_Frame_Bottom_1_ESEL201_0_8d563_10d563_18d188
 #
 
 v  -8.206405639648 -9.360000610352 1.999408721924
@@ -3827,8 +3827,8 @@ vn -0.577350199223 -0.577350318432 -0.577350318432
 vn -0.630304932594 0.297063410282 0.717264950275
 # 607 vertex normals
 
-o Layer_Frame_Bottom_1_ESEL201
-g Layer_Frame_Bottom_1_ESEL201
+o Layer_Frame_Bottom_1_ESEL201_0_8d563_10d563_18d188
+g Layer_Frame_Bottom_1_ESEL201_0_8d563_10d563_18d188
 s 1
 f 745//659 746//660 747//661 748//662 
 s 2
@@ -5617,7 +5617,7 @@ f 1547//1395 1634//1466 1633//1465 1548//1396
 # 227 polygons - 22 triangles
 
 #
-# object Layer_Rail_1_Fixed_Mtg__Rail_ESEL108A
+# object Layer_Rail_1_ESEL108A
 #
 
 v  -0.499511718750 -7.315001010895 1.937408447266
@@ -6185,8 +6185,8 @@ vn -0.378460049629 0.653249919415 0.655768692493
 vn -0.095822528005 0.678879022598 0.727970719337
 # 275 vertex normals
 
-o Layer_Rail_1_Fixed_Mtg__Rail_ESEL108A
-g Layer_Rail_1_Fixed_Mtg__Rail_ESEL108A
+o Layer_Rail_1_ESEL108A
+g Layer_Rail_1_ESEL108A
 s 1
 f 1637//1467 1638//1468 1639//1469 1640//1470 
 f 1640//1470 1639//1469 1641//1471 1642//1472 
@@ -10245,7 +10245,7 @@ f 2998//2635 2999//2664 2858//2557 2997//2638
 # 154 polygons - 12 triangles
 
 #
-# object Layer_Panel_B_Top_1_Glazing_Bead_1_ESEL109
+# object Layer_Panel_B_Top_1_ESEL109
 #
 
 v  8.437995910645 7.187999725342 1.365949630737
@@ -10415,8 +10415,8 @@ vn 0.755615890026 -0.259792774916 0.601292192936
 vn 0.755680084229 -0.476894855499 0.448908597231
 # 75 vertex normals
 
-o Layer_Panel_B_Top_1_Glazing_Bead_1_ESEL109
-g Layer_Panel_B_Top_1_Glazing_Bead_1_ESEL109
+o Layer_Panel_B_Top_1_ESEL109
+g Layer_Panel_B_Top_1_ESEL109
 s 1
 f 3005//2668 3006//2669 3007//2670 3008//2671 
 s 2
