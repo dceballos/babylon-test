@@ -1276,9 +1276,6 @@ function init() {
         select_color(mesh);
         current_mesh = mesh;
       }
-			if (mesh.name != 'Layer_Frame_Top_1_ESEL104_0_8d562_10d562_18d188' && mesh.name != "Layer_Frame_Bottom_1_ESEL201_0_8d563_10d563_18d188") {
-				mesh.visible = false;
-			}
     }); 
 
     model            = object;
