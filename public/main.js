@@ -69,14 +69,18 @@ function stretch(mesh, points, axis, stretch_intervals=[]) {
   var interval_ratios      = stretch_interval_ratios(mesh, axis, stretch_intervals);
 	var translated_intervals = translate_stretch_intervals(interval_ratios, bounding_box, axis);
 	var center               = bounding_box.getCenter()[axis];
+
+  // if (translated_intervals.length === 2) {
+  //   debugger;
+  // }
+
 	translated_intervals.forEach(function(interval) {
 		var int_len = interval[1]-interval[0];
 		new_geo.vertices.forEach(function(v) {
-			if (v[axis] >= interval[0] && v[axis] <= interval[1] && v[axis] < center) {
+			if (v[axis] >= (interval[0] - 0.001) && v[axis] <= (interval[1] - 0.01)  && v[axis] < center) {
 				v[axis] -= points/2;
-			}else if (v[axis] >= interval[0] && v[axis] <= interval[1] && v[axis] > center) {
+			}else if (v[axis] >= (interval[0] + 0.001) && v[axis] <= (interval[1] + 0.001) && v[axis] >= center) {
 				v[axis] += points/2;
-			}else{
 			}
 		});
 	});
@@ -92,8 +96,8 @@ function translate_stretch_intervals(ratios, box, axis) {
 	var max = box.max[axis];
 	var len = max-min;
 	var intervals = ratios.map(function(ratio_pair) {
-		var start_vertex = min+(len*ratio_pair[0]);
-		var end_vertex   = min+(len*ratio_pair[1]);
+		var start_vertex = min+ (len*ratio_pair[0]);
+		var end_vertex   = min+ (len*ratio_pair[1]);
 		return [start_vertex, end_vertex];
 	});
 	return intervals;
