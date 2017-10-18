@@ -62,6 +62,15 @@ function resize_height(new_height,model) {
 // anything less subtract
 // anything greater add
 function stretch(mesh, points, axis, stretch_intervals=[]) {
+
+  if (stretch_intervals && stretch_intervals.length === 2) {
+    stretch_intervals = Object.keys(og_parts.panels).map(function (panel_key) {
+      panel = og_parts.panels[panel_key];
+      return [panel_left_max(panel), panel_right_min(panel)]
+    });
+  }
+
+
   var geometry = mesh.geometry;
   geometry.computeBoundingBox();
   var new_geo              = geometry.clone();
@@ -69,11 +78,7 @@ function stretch(mesh, points, axis, stretch_intervals=[]) {
 	var translated_intervals = translate_stretch_intervals(stretch_intervals, bounding_box, axis, points);
 	var center               = bounding_box.getCenter()[axis];
 
-  // if (translated_intervals.length === 2) {
-  //   debugger;
-  // }
-
-  console.log(translated_intervals.length);
+  var length = bounding_box.max[axis] - bounding_box.min[axis];
 
   new_geo.vertices.forEach(function(v) {
     translation = translated_intervals.reduce(function(acc, interval) {
@@ -84,12 +89,12 @@ function stretch(mesh, points, axis, stretch_intervals=[]) {
       }
     }, 0);
 
-    // if (translation > 10) {
-    //   debugger;
-    // }
-
     v[axis] += translation - (points / 2)
   });
+
+  // if (stretch_intervals.length > 1 && length <= points ) {
+  //   debugger;
+  // }
 
   return new_geo;
 }
@@ -114,7 +119,7 @@ function translate_stretch_intervals(stretch_intervals, box, axis, points) {
 
 	return stretch_intervals.map(function(stretch_interval) {
 		return {
-      'points': [stretch_interval[0] + min, stretch_interval[1] + min],
+      'points': [stretch_interval[0], stretch_interval[1]],
       'translation': points * (stretch_interval[1] - stretch_interval[0]) / total_interval_length
     }
 	});
@@ -339,7 +344,7 @@ function resize_width_horizontal(width, object) {
   });
 
   // Position rails
-  /*var rparts = Object.keys(parts.rails).sort();
+  var rparts = Object.keys(parts.rails).sort();
   rparts.forEach(function(order) {
     var mesh = parts.rails[order]['mesh'];
 
@@ -362,7 +367,7 @@ function resize_width_horizontal(width, object) {
     // Offset between centers
     var newpos      = center-og_center
     mesh.position.x = newpos;
-  });*/
+  });
 
 }
 
@@ -1284,9 +1289,9 @@ function init() {
     object.name = "esmodel";
     object.children.forEach(function(mesh) {
       console.log(mesh['name']);
-      if (mesh['name'] == 'Layer_Rail_1_ESEL108A') {
-        mesh.visible = false;
-      }
+      // if (mesh['name'] == 'Layer_Rail_1_ESEL108A') {
+      //   mesh.visible = false;
+      // }
       var geometry = new THREE.Geometry().fromBufferGeometry(mesh.geometry);
       mesh.geometry = geometry;
       mesh.geometry.dynamic = true;
