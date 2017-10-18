@@ -1,5 +1,5 @@
 # 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
-# File Created: 17.10.2017 20:02:50
+# File Created: 15.10.2017 16:36:05
 
 #
 # object Layer_Frame_Left_1_ESEL102
@@ -5617,7 +5617,7 @@ f 1547//1395 1634//1466 1633//1465 1548//1396
 # 227 polygons - 22 triangles
 
 #
-# object Layer_Panel_B_Left_1_ESEL108A
+# object Layer_Rail_1_ESEL108A
 #
 
 v  -0.499511718750 -7.315001010895 1.937408447266
@@ -6185,8 +6185,8 @@ vn -0.378460049629 0.653249919415 0.655768692493
 vn -0.095822528005 0.678879022598 0.727970719337
 # 275 vertex normals
 
-o Layer_Panel_B_Left_1_ESEL108A
-g Layer_Panel_B_Left_1_ESEL108A
+o Layer_Rail_1_ESEL108A
+g Layer_Rail_1_ESEL108A
 s 1
 f 1637//1467 1638//1468 1639//1469 1640//1470 
 f 1640//1470 1639//1469 1641//1471 1642//1472 
