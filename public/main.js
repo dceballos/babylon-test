@@ -79,6 +79,9 @@ function stretch(mesh, points, axis, stretch_intervals=[]) {
   var bounding_box         = new_geo.boundingBox;
 	var translated_intervals = translate_stretch_intervals(stretch_intervals, bounding_box, axis, points);
 	var center               = bounding_box.getCenter()[axis];
+  // these two are necessary for erasing state and allow selection after scale
+  new_geo.boundingSphere = null;
+  new_geo.boundingBox    = null;
 
   var length = bounding_box.max[axis] - bounding_box.min[axis];
 
