@@ -5,7 +5,7 @@ window.onload=function(){
   title           = document.createElement('div');
   info            = document.createElement('div');
   mesh_info       = document.createElement('div');
-  mesh_info       = document.createElement('div');
+  mesh_list       = document.createElement('div');
 
   light            = null;
   model            = null;
@@ -19,6 +19,7 @@ window.onload=function(){
   append_title();
   append_info();
   append_mesh_info();
+  append_mesh_list();
 
   init();
   events();
@@ -1288,9 +1289,6 @@ function init() {
     object.name = "esmodel";
     object.children.forEach(function(mesh) {
       console.log(mesh['name']);
-      // if (mesh['name'] == 'Layer_Rail_1_ESEL108A') {
-      //   mesh.visible = false;
-      // }
       var geometry = new THREE.Geometry().fromBufferGeometry(mesh.geometry);
       mesh.geometry = geometry;
       mesh.geometry.dynamic = true;
@@ -1300,7 +1298,7 @@ function init() {
         select_color(mesh);
         current_mesh = mesh;
       }
-
+      append_mesh_to_list(mesh);
     }); 
 
     model            = object;
@@ -1352,8 +1350,6 @@ function load_controls() {
   controls.enableRotate = true;
   controls.enablePan = true;
   controls.enableDamping = false;
-  //controls.minPolarAngle = Math.PI/2;
-  //controls.maxPolarAngle = Math.PI/2;
   controls.dampingFactor = 10;
 }
 
@@ -1423,17 +1419,81 @@ function append_info() {
 
 function append_mesh_info() {
   mesh_info.style.position = 'absolute';
+  mesh_info.style.margin = 'auto';
   mesh_info.style.top = '90px';
+  mesh_info.style.left = '10px';
   mesh_info.style.width = '100%';
   mesh_info.style.textAlign = 'center';
   mesh_info.style.color = '#fff';
   mesh_info.style.fontWeight = 'bold';
-  mesh_info.style.fontSize = '18px';
+  mesh_info.style.fontSize = '13px';
   mesh_info.style.backgroundColor = 'transparent';
   mesh_info.style.zIndex = '1';
   mesh_info.style.fontFamily = 'Monospace';
   mesh_info.innerHTML = "";
   document.body.appendChild(mesh_info);
+}
+
+function append_mesh_list() {
+  mesh_list.style.position = 'absolute';
+  mesh_list.style.top = '90px';
+  mesh_list.style.width = '300px';
+  mesh_list.style.textAlign = 'left';
+  mesh_list.style.color = '#fff';
+  mesh_list.style.fontWeight = 'bold';
+  mesh_list.style.fontSize = '13px';
+  mesh_list.style.backgroundColor = 'transparent';
+  mesh_list.style.zIndex = '1';
+  mesh_list.style.fontFamily = 'Monospace';
+  mesh_list.innerHTML = "";
+  document.body.appendChild(mesh_list);
+}
+
+function normalized_mesh_name(mesh) {
+  var parts = mesh.name.split("_").map(function(n){
+    return n.toLowerCase()
+  });
+  var type = parts[1];
+  var pos  = null;
+  var order = null;
+  var sap  = null;
+  var panel_name = "";
+  var name;
+  if (type == 'frame') {
+    pos   = parts[2];
+    order = parts[3];
+    sap   = parts[4];
+    name  = type + ' ' + pos + ' ' + order + ' ' + sap;
+  }else if (type == 'panel') {
+    panel_name = parts[2];
+    sap        = parts[5];
+    order      = parts[3];
+    pos        = parts[4];
+    name       = type + ' ' + panel_name + ' ' + pos + ' ' + order + ' ' + sap;
+  }
+  return name; 
+}
+
+function append_mesh_to_list(mesh) {
+  var mesh_div = document.createElement('div');
+  var checkbox = document.createElement('input');
+  var span     = document.createElement('span');
+  mesh_div.style.textAlign = 'left';
+  span.innerHTML   = normalized_mesh_name(mesh);
+  checkbox.type = "checkbox";
+  checkbox.name = mesh.name;
+  checkbox.checked = true;
+  checkbox.id = mesh.name;
+  checkbox.addEventListener('change',function(evt){
+    if (evt.target.checked) {
+      mesh.visible = true;
+    }else{
+      mesh.visible = false;
+    }
+  },false);
+  mesh_div.appendChild(span)
+  mesh_div.appendChild(checkbox);
+  mesh_list.appendChild(mesh_div);
 }
 
 function update_info() {
@@ -1444,38 +1504,7 @@ function update_mesh_info(mesh) {
   if (!mesh)
     return;
   var parts = mesh_parts_from_name(mesh);
-  var type  = parts[1];
-  var ref   = parts[parts.length-1];
-  var name;
-  var position;
-  var stack_pos;
-  var length;
-  var width;
-  console.log(mesh['name']);
-
-/*  if (type == "frame") {
-    position = parts[2];
-    stack_pos = parts[3];
-    name = parts.slice(4,parts.length-1).join(" ");
-  }else if (type == "rail") {
-    position = "top";
-    name = parts.slice(3,parts.length-1).join(" ");
-  }else if (type.length == 1) {
-    position = parts[2];
-    stack_pos = parts[3];
-    name = parts.slice(4,parts.length-2).join(" ");
-  }
-
-  if (position == "top" || position == "bottom") {
-    length = mesh_width(mesh);
-    width  = mesh_height(mesh);
-  }else{
-    length = mesh_height(mesh);
-    width  = mesh_width(mesh);
-  }
-
-  mesh_info.innerHTML = name.toUpperCase()+"<br/>ES Part #: "+ref.toUpperCase()+"<br/>Length: "+display_in_inches(length);
-  mesh_info.innerHTML += " width: "+display_in_inches(width);*/
+  mesh_info.innerHTML = normalized_mesh_name(mesh).toUpperCase();
 }
 
 function clear_mesh_info() {

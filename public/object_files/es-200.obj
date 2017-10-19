@@ -1,5 +1,5 @@
 # 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
-# File Created: 15.10.2017 16:36:05
+# File Created: 18.10.2017 21:50:53
 
 #
 # object Layer_Frame_Left_1_ESEL102
@@ -5617,7 +5617,7 @@ f 1547//1395 1634//1466 1633//1465 1548//1396
 # 227 polygons - 22 triangles
 
 #
-# object Layer_Rail_1_ESEL108A
+# object Layer_Panel_B_Left_2_ESEL108A
 #
 
 v  -0.499511718750 -7.315001010895 1.937408447266
@@ -6185,8 +6185,8 @@ vn -0.378460049629 0.653249919415 0.655768692493
 vn -0.095822528005 0.678879022598 0.727970719337
 # 275 vertex normals
 
-o Layer_Rail_1_ESEL108A
-g Layer_Rail_1_ESEL108A
+o Layer_Panel_B_Left_2_ESEL108A
+g Layer_Panel_B_Left_2_ESEL108A
 s 1
 f 1637//1467 1638//1468 1639//1469 1640//1470 
 f 1640//1470 1639//1469 1641//1471 1642//1472 
@@ -11166,7 +11166,7 @@ f 3208//2849 3206//2847 3220//2861
 # 82 polygons - 8 triangles
 
 #
-# object Layer_Panel_B_Left_2_ESEL109
+# object Layer_Panel_B_Left_1_ESEL109
 #
 
 v  0.812500000000 -7.315001010895 1.999410629272
@@ -11341,8 +11341,8 @@ vn -0.655744373798 -0.653154671192 0.378666371107
 vn -0.378527522087 -0.653248250484 0.655731379986
 # 80 vertex normals
 
-o Layer_Panel_B_Left_2_ESEL109
-g Layer_Panel_B_Left_2_ESEL109
+o Layer_Panel_B_Left_1_ESEL109
+g Layer_Panel_B_Left_1_ESEL109
 s 1
 f 3268//2901 3269//2902 3270//2903 3271//2904 
 s 2
