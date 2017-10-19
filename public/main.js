@@ -16,13 +16,11 @@ window.onload=function(){
   current_mesh     = null;
   panel_dlo_ratios = {};
 
-  append_title();
+	append_title();
   append_info();
   append_mesh_info();
   append_mesh_list();
-	append_toggle_mesh_list_checkbox();
 	
-
   init();
   events();
   animate();
@@ -1302,7 +1300,6 @@ function init() {
         select_color(mesh);
         current_mesh = mesh;
       }
-      append_mesh_to_list(mesh);
     }); 
 
     model            = object;
@@ -1310,6 +1307,9 @@ function init() {
     original_height  = mesh_height(og_model);
     original_width   = mesh_width(og_model);
     og_parts         = meshes_as_parts(og_model,true);
+
+		render_mesh_list();
+
     if (orientation == "vertical") {
       panel_dlo_ratios = og_vertical_dlo_ratios();
     }else{
@@ -1320,6 +1320,18 @@ function init() {
   });
 
   
+}
+
+function render_mesh_list() {
+	append_toggle_mesh_list_checkbox();
+	var sorted_meshes = model.children.sort(function(a,b) {
+		var name_a = normalized_mesh_name(a);
+		var name_b = normalized_mesh_name(b);
+		return (name_a < name_b) ? -1 : (name_a > name_b) ? 1 : 0;
+	});	
+	sorted_meshes.forEach(function(mesh) {
+    append_mesh_to_list(mesh);
+	});
 }
 
 function events() {
@@ -1471,8 +1483,8 @@ function normalized_mesh_name(mesh) {
   }else if (type == 'panel') {
     panel_name = parts[2];
     sap        = parts[5];
-    order      = parts[3];
-    pos        = parts[4];
+    order      = parts[4];
+    pos        = parts[3];
     name       = type + ' ' + panel_name + ' ' + pos + ' ' + order + ' ' + sap;
   }
   return name; 
@@ -1481,7 +1493,9 @@ function normalized_mesh_name(mesh) {
 function append_toggle_mesh_list_checkbox() {
   var checkbox = document.createElement('input');
   var span     = document.createElement('span');
-  span.innerHTML = "Select/Deselect all";
+ 	span.style.width = '200px';
+  span.style.display = 'inline-block'; 
+	span.innerHTML = "Show/Hide all";
 	checkbox.type = "checkbox";
   checkbox.name = "toggler";
   checkbox.checked = true;
@@ -1498,6 +1512,8 @@ function append_mesh_to_list(mesh) {
   var span     = document.createElement('span');
   mesh_div.style.textAlign = 'left';
   span.innerHTML   = normalized_mesh_name(mesh);
+	span.style.width = '200px';
+  span.style.display = 'inline-block';
   checkbox.type = "checkbox";
   checkbox.name = "meshbox";
   checkbox.checked = true;
