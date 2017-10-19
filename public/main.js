@@ -1463,7 +1463,7 @@ function normalized_mesh_name(mesh) {
     pos   = parts[2];
     order = parts[3];
     sap   = parts[4];
-    name  = type + ' ' + pos + ' ' + order + ' ' + sap;
+    name  = type + ' ' + pos + ' ' + order + ' ' + (sap ? sap : "");
   }else if (type == 'panel') {
     panel_name = parts[2];
     sap        = parts[5];
