@@ -1478,16 +1478,20 @@ function normalized_mesh_name(mesh) {
   if (type == 'frame') {
     pos   = parts[2];
     order = parts[3];
-    sap   = parts[4];
-    name  = type + ' ' + pos + ' ' + order + ' ' + (sap ? sap : "");
+    sap   = parts[4].toUpperCase();
+    name  = (sap ? sap : "") + ' ' + capitalize(type) + ' ' + capitalize(pos) + ' ' + order;
   }else if (type == 'panel') {
     panel_name = parts[2];
-    sap        = parts[5];
+    sap        = parts[5].toUpperCase();
     order      = parts[4];
     pos        = parts[3];
-    name       = type + ' ' + panel_name + ' ' + pos + ' ' + order + ' ' + sap;
+    name       = sap + ' ' + capitalize(type) + ' ' + capitalize(panel_name) + ' ' + capitalize(pos) + ' ' + order;
   }
   return name; 
+}
+
+function capitalize(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 function append_toggle_mesh_list_checkbox() {
