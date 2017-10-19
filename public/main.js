@@ -5,6 +5,7 @@ window.onload=function(){
   title           = document.createElement('div');
   info            = document.createElement('div');
   mesh_info       = document.createElement('div');
+  mesh_info       = document.createElement('div');
 
   light            = null;
   model            = null;
@@ -82,7 +83,7 @@ function stretch(mesh, points, axis, stretch_intervals=[]) {
 
   new_geo.vertices.forEach(function(v) {
     translation = translated_intervals.reduce(function(acc, interval) {
-      if (v[axis] >= (interval['points'][0] + 0.001)) {
+      if (v[axis] >= (interval['points'][0])) {
         return acc + interval['translation']
       } else {
         return acc;
@@ -91,10 +92,6 @@ function stretch(mesh, points, axis, stretch_intervals=[]) {
 
     v[axis] += translation - (points / 2)
   });
-
-  // if (stretch_intervals.length > 1 && length <= points ) {
-  //   debugger;
-  // }
 
   return new_geo;
 }
@@ -644,12 +641,14 @@ function resize_height_vertical(height, object) {
       mesh.geometry     = new_geo;
 
       // Re-center
-      og_mesh.geometry.computeBoundingBox();
       var pmax        = panel_top_max(panel);
       var pmin        = panel_bottom_min(panel);
       var pheight     = pmax-pmin;
       var pcenter     = pmax-(pheight/2);
-      var og_pcenter  = og_mesh.geometry.boundingBox.getCenter().y ;
+      var og_pmax     = panel_top_max(og_panel);
+      var og_pmin     = panel_bottom_min(og_panel);
+      var og_pheight  = og_pmax-og_pmin;
+      var og_pcenter  = og_pmax-(og_pheight/2);
       mesh.position.y = pcenter-og_pcenter;
     });
 
@@ -1301,6 +1300,7 @@ function init() {
         select_color(mesh);
         current_mesh = mesh;
       }
+
     }); 
 
     model            = object;
