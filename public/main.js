@@ -20,6 +20,8 @@ window.onload=function(){
   append_info();
   append_mesh_info();
   append_mesh_list();
+	append_toggle_mesh_list_checkbox();
+	
 
   init();
   events();
@@ -72,7 +74,6 @@ function stretch(mesh, points, axis, stretch_intervals=[]) {
     });
   }
 
-
   var geometry = mesh.geometry;
   geometry.computeBoundingBox();
   var new_geo              = geometry.clone();
@@ -113,8 +114,8 @@ function translate_stretch_intervals(stretch_intervals, box, axis, points) {
   }
 
   total_interval_length = stretch_intervals.reduce(function (acc, interval) {
-                            return acc + interval[1] - interval[0]
-                          }, 0);
+    return acc + interval[1] - interval[0]
+  }, 0);
 
 	var min = box.min[axis];
 
@@ -1477,6 +1478,20 @@ function normalized_mesh_name(mesh) {
   return name; 
 }
 
+function append_toggle_mesh_list_checkbox() {
+  var checkbox = document.createElement('input');
+  var span     = document.createElement('span');
+  span.innerHTML = "Select/Deselect all";
+	checkbox.type = "checkbox";
+  checkbox.name = "toggler";
+  checkbox.checked = true;
+  checkbox.addEventListener('change',function(evt){
+		toggle_all_meshes(checkbox.checked);
+  },false);
+	mesh_list.appendChild(span);
+	mesh_list.appendChild(checkbox);
+}
+
 function append_mesh_to_list(mesh) {
   var mesh_div = document.createElement('div');
   var checkbox = document.createElement('input');
@@ -1484,7 +1499,7 @@ function append_mesh_to_list(mesh) {
   mesh_div.style.textAlign = 'left';
   span.innerHTML   = normalized_mesh_name(mesh);
   checkbox.type = "checkbox";
-  checkbox.name = mesh.name;
+  checkbox.name = "meshbox";
   checkbox.checked = true;
   checkbox.id = mesh.name;
   checkbox.addEventListener('change',function(evt){
@@ -1497,6 +1512,16 @@ function append_mesh_to_list(mesh) {
   mesh_div.appendChild(span)
   mesh_div.appendChild(checkbox);
   mesh_list.appendChild(mesh_div);
+}
+
+function toggle_all_meshes(checked) {
+  checkboxes = document.getElementsByName('meshbox');
+  for(var i=0, n=checkboxes.length;i<n;i++) {
+		var checkbox = checkboxes[i];
+		checkbox.checked = checked;
+		var event = new Event('change');
+		checkbox.dispatchEvent(event);
+  }
 }
 
 function update_info() {
