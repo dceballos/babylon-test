@@ -1442,7 +1442,7 @@ function append_mesh_info() {
   mesh_info.style.textAlign = 'center';
   mesh_info.style.color = '#fff';
   mesh_info.style.fontWeight = 'bold';
-  mesh_info.style.fontSize = '13px';
+  mesh_info.style.fontSize = '18px';
   mesh_info.style.backgroundColor = 'transparent';
   mesh_info.style.zIndex = '1';
   mesh_info.style.fontFamily = 'Monospace';
