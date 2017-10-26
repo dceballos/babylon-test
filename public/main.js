@@ -1097,69 +1097,147 @@ function panel_width(panel) {
 }
 
 function frame_top_max(frame) {
-  return entity_side_extreme(frame, 'top', 'y', 'max');
+  var parts = Object.keys(frame['top']).sort();
+  var max = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(frame['top'][parseInt(part)]['mesh'])
+    if (box.max.y > max || max == null) {
+      max = box.max.y;
+    }
+  });
+  return max;
 }
 
 function frame_bottom_min(frame) {
-  return entity_side_extreme(frame, 'bottom', 'y', 'min');
+  var parts = Object.keys(frame['bottom']).sort();
+  var min = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(frame['bottom'][parseInt(part)]['mesh'])
+    if (box.min.y < min || min == null) {
+      min = box.min.y;
+    }
+  });
+  return min;
 }
 
 function frame_left_min(frame) {
-  return entity_side_extreme(frame, 'left', 'x', 'min');
+  var parts = Object.keys(frame['left']).sort();
+  var min = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(frame['left'][parseInt(part)]['mesh'])
+    if (box.min.x < min || min == null) {
+      min = box.min.x;
+    }
+  });
+  return min;
 }
 
 function frame_right_max(frame) {
-  return entity_side_extreme(frame, 'right', 'x', 'max');
+  var parts = Object.keys(frame['right']).sort();
+  var max = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(frame['right'][parseInt(part)]['mesh'])
+    if (box.max.x > max || max == null) {
+      max = box.max.x;
+    }
+  });
+  return max;
 }
 
 function panel_bottom_max(panel) {
-  return entity_side_extreme(panel, 'bottom', 'y', 'max');
+  var parts = Object.keys(panel['bottom']).sort();
+  var max = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['bottom'][parseInt(part)].mesh);
+    if (box.max.y > max || max == null) {
+      max = box.max.y;
+    }
+  });
+  return max;
 }
 
 function panel_top_min(panel) {
-  return entity_side_extreme(panel, 'top', 'y', 'min');
+  var parts = Object.keys(panel['top']).sort();
+  var min = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['top'][parseInt(part)].mesh);
+    if (box.min.y < min || min == null) {
+      min = box.min.y;
+    }
+  });
+  return min;
 }
 
 function panel_top_max(panel) {
-  return entity_side_extreme(panel, 'top', 'y', 'max');
+  var parts = Object.keys(panel['top']).sort();
+  var max = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['top'][parseInt(part)].mesh);
+    if (box.max.y > max || max == null) {
+      max = box.max.y;
+    }
+  });
+  return max;
 }
 
 function panel_bottom_min(panel) {
-  return entity_side_extreme(panel, 'bottom', 'y', 'min');
+  var parts = Object.keys(panel['bottom']).sort();
+  var min = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['bottom'][parseInt(part)].mesh);
+    if (box.min.y < min || min == null) {
+      min = box.min.y;
+    }
+  });
+  return min;
 }
 
 function panel_right_max(panel) {
-  return entity_side_extreme(panel, 'right', 'x', 'max');
+  var parts = Object.keys(panel['right']).sort();
+  var max = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['right'][parseInt(part)].mesh);
+    if (box.max.x > max || max == null) {
+      max = box.max.x;
+    }
+  });
+  return max;
 }
 
 function panel_right_min(panel) {
-  return entity_side_extreme(panel, 'right', 'x', 'min');
+  var parts = Object.keys(panel['right']).sort();
+  var min = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['right'][parseInt(part)].mesh);
+    if (box.min.x < min || min == null) {
+      min = box.min.x;
+    }
+  });
+  return min;
 }
 
 function panel_left_min(panel) {
-  return entity_side_extreme(panel, 'left', 'x', 'min');
+  var parts = Object.keys(panel['left']).sort();
+  var min = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['left'][parseInt(part)].mesh);
+    if (box.min.x < min || min == null) {
+      max = box.min.x;
+    }
+  });
+  return min;
 }
 
 function panel_left_max(panel) {
-  return entity_side_extreme(panel, 'left', 'x', 'max');
-}
-
-function entity_side_extreme(entity, side, axis, extreme) {
-  var parts = Object.keys(entity[side]).sort();
-  var extremes = parts.map(function(part) {
-    var box = mesh_box(entity[side][parseInt(part)].mesh);
-    return box[extreme][axis];
+  var parts = Object.keys(panel['left']).sort();
+  var max = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['left'][parseInt(part)].mesh);
+    if (box.max.x > max || max == null) {
+      max = box.max.x;
+    }
   });
-
-  var result_extreme;
-
-  if (extreme == 'max') {
-    result_extreme = Math.max(...extremes);
-  } else {
-    result_extreme = Math.min(...extremes);
-  }
-
-  return result_extreme;
+  return max;
 }
 
 function mesh_parts_from_name(mesh) {
