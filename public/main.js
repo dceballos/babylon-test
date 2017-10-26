@@ -211,8 +211,6 @@ function resize_width_horizontal(width, object) {
   var frparts = Object.keys(parts.frame['right']).sort();
   var flparts = Object.keys(parts.frame['left']).sort();
 
-  debugger;
-
   // Translate frame left side
   flparts.forEach(function(order) {
     var mesh        = parts.frame['left'][order]['mesh'];
