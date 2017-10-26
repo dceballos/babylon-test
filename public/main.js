@@ -1098,77 +1098,147 @@ function panel_width(panel) {
 
 function frame_top_max(frame) {
   var parts = Object.keys(frame['top']).sort();
-  var box = mesh_box(frame['top'][parts[0]]['mesh'])
-  return box.max.y;
+  var max = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(frame['top'][parseInt(part)]['mesh'])
+    if (box.max.y > max || max == null) {
+      max = box.max.y;
+    }
+  });
+  return max;
 }
 
 function frame_bottom_min(frame) {
   var parts = Object.keys(frame['bottom']).sort();
-  var box = mesh_box(frame['bottom'][parts[0]]['mesh'])
-  return box.min.y;
+  var min = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(frame['bottom'][parseInt(part)]['mesh'])
+    if (box.min.y < min || min == null) {
+      min = box.min.y;
+    }
+  });
+  return min;
 }
 
 function frame_left_min(frame) {
   var parts = Object.keys(frame['left']).sort();
-  var box = mesh_box(frame['left'][parts[0]]['mesh'])
-  return box.min.x;
+  var min = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(frame['left'][parseInt(part)]['mesh'])
+    if (box.min.x < min || min == null) {
+      min = box.min.x;
+    }
+  });
+  return min;
 }
 
 function frame_right_max(frame) {
   var parts = Object.keys(frame['right']).sort();
-  var box = mesh_box(frame['right'][parts[0]]['mesh'])
-  return box.max.x;
+  var max = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(frame['right'][parseInt(part)]['mesh'])
+    if (box.max.x > max || max == null) {
+      max = box.max.x;
+    }
+  });
+  return max;
 }
 
 function panel_bottom_max(panel) {
   var parts = Object.keys(panel['bottom']).sort();
-  var box = mesh_box(panel['bottom'][parts[parts.length-1]]['mesh'])
-  return box.max.y;
+  var max = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['bottom'][parseInt(part)].mesh);
+    if (box.max.y > max || max == null) {
+      max = box.max.y;
+    }
+  });
+  return max;
 }
 
 function panel_top_min(panel) {
   var parts = Object.keys(panel['top']).sort();
-  var box = mesh_box(panel['top'][parts[parts.length-1]]['mesh'])
-  return box.min.y;
+  var min = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['top'][parseInt(part)].mesh);
+    if (box.min.y < min || min == null) {
+      min = box.min.y;
+    }
+  });
+  return min;
 }
 
 function panel_top_max(panel) {
   var parts = Object.keys(panel['top']).sort();
-  var box = mesh_box(panel['top'][parts[0]]['mesh'])
-  return box.max.y;
+  var max = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['top'][parseInt(part)].mesh);
+    if (box.max.y > max || max == null) {
+      max = box.max.y;
+    }
+  });
+  return max;
 }
 
 function panel_bottom_min(panel) {
   var parts = Object.keys(panel['bottom']).sort();
-  var box = mesh_box(panel['bottom'][parts[0]]['mesh'])
-  return box.min.y;
+  var min = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['bottom'][parseInt(part)].mesh);
+    if (box.min.y < min || min == null) {
+      min = box.min.y;
+    }
+  });
+  return min;
 }
 
 function panel_right_max(panel) {
   var parts = Object.keys(panel['right']).sort();
-  var box = mesh_box(panel['right'][parts[0]]['mesh'])
-  return box.max.x;
+  var max = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['right'][parseInt(part)].mesh);
+    if (box.max.x > max || max == null) {
+      max = box.max.x;
+    }
+  });
+  return max;
 }
 
 function panel_right_min(panel) {
   var parts = Object.keys(panel['right']).sort();
-  var box = mesh_box(panel['right'][parts[parts.length-1]]['mesh']);
-  return box.min.x;
+  var min = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['right'][parseInt(part)].mesh);
+    if (box.min.x < min || min == null) {
+      min = box.min.x;
+    }
+  });
+  return min;
 }
 
 function panel_left_min(panel) {
   var parts = Object.keys(panel['left']).sort();
-  var box = mesh_box(panel['left'][parts[0]]['mesh'])
-  return box.min.x;
+  var min = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['left'][parseInt(part)].mesh);
+    if (box.min.x < min || min == null) {
+      max = box.min.x;
+    }
+  });
+  return min;
 }
 
 function panel_left_max(panel) {
   var parts = Object.keys(panel['left']).sort();
-  var box = mesh_box(panel['left'][parts[parts.length-1]]['mesh']);
-  return box.max.x;
+  var max = null;
+  parts.forEach(function(part) {
+    var box = mesh_box(panel['left'][parseInt(part)].mesh);
+    if (box.max.x > max || max == null) {
+      max = box.max.x;
+    }
+  });
+  return max;
 }
-
-
 
 function mesh_parts_from_name(mesh) {
   var mesh_parts = mesh.name.split("_").map(function(m) {
