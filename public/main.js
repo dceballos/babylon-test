@@ -1177,7 +1177,7 @@ function mesh_parts_from_name(mesh) {
 }
 
 function parse_stretch_interval_float(point) {
-	return parseFloat(point.split("d").join("."));
+	return 0;//parseFloat(point.split("d").join("."));
 }
 
 function parse_stretch_intervals(mesh_parts) {
