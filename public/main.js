@@ -284,9 +284,11 @@ function resize_width_horizontal(width, object) {
     plparts.forEach(function(part) {
       var mesh         = panel['left'][part]['mesh'];
       var og_mesh      = og_panel['left'][part]['mesh'];
-      var og_prev_dist = previous_item_left_offset(og_mesh, og_previous);
       var box          = mesh_box(og_mesh) 
-      var from         = mesh_box(previous).max.x+og_prev_dist;
+      var og_prev_max  = previous_horizontal_panel_max(panel_name,og_parts);
+      var prev_max     = previous_horizontal_panel_max(panel_name,parts);
+      var og_prev_dist = box.min.x - og_prev_max;
+      var from         = prev_max+og_prev_dist;
       var distance     = from-box.min.x;
       mesh.position.x  = distance
     });
@@ -921,6 +923,19 @@ function previous_item_top_offset(current, previous) {
   return previous_box.max.y - current_box.max.y;
 }
 
+function previous_horizontal_panel_max(panel_name, parts) {
+  var panel = parts.panels[panel_name];
+  if (panel_name == "a") {
+    return frame_left_max(parts.frame);
+  }else{
+    var panel_names = Object.keys(parts.panels).sort();
+    var current_panel_index = panel_names.indexOf(panel_name);
+    var prev_panel_name = panel_names[current_panel_index-1];
+    var prev_panel = parts.panels[prev_panel_name];
+    return panel_right_max(prev_panel);
+  }
+}
+
 function previous_horizontal_panel_item(panel_name, parts) {
   var panel = parts.panels[panel_name];
   if (panel_name == "a") {
@@ -1106,6 +1121,10 @@ function frame_bottom_min(frame) {
 
 function frame_left_min(frame) {
   return entity_side_extreme(frame, 'left', 'x', 'min');
+}
+
+function frame_left_max(frame) {
+  return entity_side_extreme(frame, 'left', 'x', 'max');
 }
 
 function frame_right_max(frame) {
