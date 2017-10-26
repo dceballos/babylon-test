@@ -63,9 +63,10 @@ function resize_height(new_height,model) {
 // get center
 // anything less subtract
 // anything greater add
-function stretch(mesh, points, axis, stretch_intervals=[]) {
-
-  if (stretch_intervals && stretch_intervals.length === 2) {
+function stretch(mesh, points, axis, use_dlo = false) {
+  var stretch_intervals = []
+  if (use_dlo) {
+    console.log('use_dlo for' + mesh.name)
     stretch_intervals = Object.keys(og_parts.panels).map(function (panel_key) {
       panel = og_parts.panels[panel_key];
       return [panel_left_max(panel), panel_right_min(panel)]
@@ -210,6 +211,8 @@ function resize_width_horizontal(width, object) {
   var frparts = Object.keys(parts.frame['right']).sort();
   var flparts = Object.keys(parts.frame['left']).sort();
 
+  debugger;
+
   // Translate frame left side
   flparts.forEach(function(order) {
     var mesh        = parts.frame['left'][order]['mesh'];
@@ -235,7 +238,7 @@ function resize_width_horizontal(width, object) {
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
     var len_to_resize = new_width-og_width;
-    var new_geo       = stretch(og_mesh, len_to_resize, 'x', s_intervals);
+    var new_geo       = stretch(og_mesh, len_to_resize, 'x', true);
     mesh.geometry     = new_geo;
   });
 
@@ -248,7 +251,7 @@ function resize_width_horizontal(width, object) {
     var offset        = og_frame_width-og_width;
     var new_width     = (og_frame_width*factor)-offset;
     var len_to_resize = new_width-og_width;
-    var new_geo       = stretch(og_mesh, len_to_resize, 'x', s_intervals);
+    var new_geo       = stretch(og_mesh, len_to_resize, 'x', true);
     mesh.geometry     = new_geo;
   });
 
@@ -1318,8 +1321,6 @@ function init() {
     scene.add(object);
     update_info();
   });
-
-  
 }
 
 function render_mesh_list() {
