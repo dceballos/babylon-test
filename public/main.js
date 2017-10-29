@@ -66,7 +66,6 @@ function resize_height(new_height,model) {
 function stretch(mesh, points, axis, use_dlo = false) {
   var stretch_intervals = []
   if (use_dlo) {
-    console.log('use_dlo for' + mesh.name)
     stretch_intervals = Object.keys(og_parts.panels).map(function (panel_key) {
       panel = og_parts.panels[panel_key];
       return [panel_left_max(panel), panel_right_min(panel)]
@@ -337,8 +336,8 @@ function resize_width_horizontal(width, object) {
 
       // Re-center
       og_mesh.geometry.computeBoundingBox();
-      var pmax        = panel_left_min(panel);
-      var pmin        = panel_right_max(panel);
+      var pmax        = panel_left_max(panel);
+      var pmin        = panel_right_min(panel);
       var pwidth      = pmax-pmin;
       var pcenter     = pmax-(pwidth/2);
       var og_pcenter  = og_mesh.geometry.boundingBox.getCenter().x ;
