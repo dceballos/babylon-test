@@ -68,7 +68,11 @@ function stretch(mesh, points, axis, use_dlo = false) {
   if (use_dlo) {
     stretch_intervals = Object.keys(og_parts.panels).map(function (panel_key) {
       panel = og_parts.panels[panel_key];
-      return [panel_left_max(panel), panel_right_min(panel)]
+      if (orientation == 'horizontal') {
+        return [panel_left_max(panel), panel_right_min(panel)]
+      }else{
+        return [panel_top_min(panel), panel_bottom_max(panel)]
+      }
     });
   }
 
