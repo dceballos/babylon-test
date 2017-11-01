@@ -1558,7 +1558,9 @@ function update_mesh_info(mesh) {
   if (!mesh)
     return;
   var parts = mesh_parts_from_name(mesh);
-  mesh_info.innerHTML = normalized_mesh_name(mesh).toUpperCase();
+  var dim = "Part Width: "+display_in_inches(mesh_width(mesh))+" Part Height: "+display_in_inches(mesh_height(mesh));
+  var html = normalized_mesh_name(mesh).toUpperCase() + "<br/>" + dim;
+  mesh_info.innerHTML = html;
 }
 
 function clear_mesh_info() {
