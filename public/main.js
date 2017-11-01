@@ -546,7 +546,7 @@ function resize_height_vertical(height, object) {
     var offset        = og_frame_height-og_height;
     var new_height    = (og_frame_height*factor)-offset;
     var len_to_resize = new_height-og_height;
-    var new_geo       = stretch(og_mesh, len_to_resize, 'y');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'y', true);
     mesh.geometry     = new_geo;
   });
 
@@ -558,7 +558,7 @@ function resize_height_vertical(height, object) {
     var offset        = og_frame_height-og_height;
     var new_height    = (og_frame_height*factor)-offset;
     var len_to_resize = new_height-og_height;
-    var new_geo       = stretch(og_mesh, len_to_resize, 'y');
+    var new_geo       = stretch(og_mesh, len_to_resize, 'y', true);
     mesh.geometry     = new_geo;
   });
 
