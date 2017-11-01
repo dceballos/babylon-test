@@ -344,33 +344,6 @@ function resize_width_horizontal(width, object) {
       mesh.position.x = pcenter-og_pcenter;
     });
   });
-
-  // Position rails
-  var rparts = Object.keys(parts.rails).sort();
-  rparts.forEach(function(order) {
-    var mesh = parts.rails[order]['mesh'];
-
-    // Compute original center
-    var og_previous_panel = previous_rail_panel(order, og_parts);
-    var og_next_panel     = next_rail_panel(order, og_parts);
-    var og_rtop           = panel_right_max(og_previous_panel);
-    var og_rbottom        = panel_left_min(og_next_panel);
-    var og_width          = og_rbottom - og_rtop;
-    var og_center         = og_rtop+(og_width/2);
-
-    // Compute new center
-    var previous_panel  = previous_rail_panel(order, parts);
-    var next_panel      = next_rail_panel(order, parts);
-    var rtop            = panel_right_max(previous_panel);
-    var rbottom         = panel_left_min(next_panel);
-    var height          = rbottom - rtop;
-    var center          = rtop+(height/2);
-
-    // Offset between centers
-    var newpos      = center-og_center
-    mesh.position.x = newpos;
-  });
-
 }
 
 function resize_height_horizontal(height, object) {
@@ -612,18 +585,23 @@ function resize_height_vertical(height, object) {
 
     // translate top parts
     var ptparts = Object.keys(panel['top']).sort();
+    var pbparts = Object.keys(panel['bottom']).sort();
+    var plparts = Object.keys(panel['left']).sort();
+    var plparts = Object.keys(panel['right']).sort();
+
     ptparts.forEach(function(part) {
       var mesh         = panel['top'][part]['mesh'];
       var og_mesh      = og_panel['top'][part]['mesh'];
-      var og_prev_dist = previous_item_top_offset(og_mesh, og_previous);
-      var box          = mesh_box(og_mesh) 
-      var from         = mesh_box(previous).max.y-og_prev_dist;
-      var distance     = from-box.max.y;
-      mesh.position.y  = distance
+      var og_box       = mesh_box(og_mesh)
+      var og_prev_min  = previous_vertical_panel_min(panel_name,og_parts);
+      var prev_min     = previous_vertical_panel_min(panel_name,parts);
+      var og_prev_dist = og_box.max.y - og_prev_min;
+      var from         = prev_min+og_prev_dist;
+      var distance     = from-og_box.max.y;
+      mesh.position.y  = distance;
     });
 
     // translate bottom parts
-    var pbparts = Object.keys(panel['bottom']).sort();
     pbparts.forEach(function(part) {
       var mesh        = panel['bottom'][part]['mesh'];
       var og_mesh     = og_panel['bottom'][part]['mesh'];
@@ -634,7 +612,6 @@ function resize_height_vertical(height, object) {
     });	
 
     // scale left parts
-    var plparts = Object.keys(panel['left']).sort();
     plparts.forEach(function(part) {
       var mesh          = panel['left'][part]['mesh'];
       var og_mesh       = og_panel['left'][part]['mesh'];
@@ -658,7 +635,6 @@ function resize_height_vertical(height, object) {
     });
 
     // scale right parts
-    var plparts = Object.keys(panel['right']).sort();
     plparts.forEach(function(part) {
       var mesh          = panel['right'][part]['mesh'];
       var og_mesh       = og_panel['right'][part]['mesh'];
@@ -922,6 +898,19 @@ function previous_item_top_offset(current, previous) {
   return previous_box.max.y - current_box.max.y;
 }
 
+function previous_vertical_panel_min(panel_name, parts) {
+  var panel = parts.panels[panel_name];
+  if (panel_name == "a") {
+    return frame_top_min(parts.frame);
+  }else{
+    var panel_names = Object.keys(parts.panels).sort();
+    var current_panel_index = panel_names.indexOf(panel_name);
+    var prev_panel_name = panel_names[current_panel_index-1];
+    var prev_panel = parts.panels[prev_panel_name];
+    return panel_bottom_min(prev_panel);
+  }
+}
+
 function previous_horizontal_panel_max(panel_name, parts) {
   var panel = parts.panels[panel_name];
   if (panel_name == "a") {
@@ -965,7 +954,7 @@ function previous_vertical_panel_item(panel_name, parts) {
     var last_frame_top = parts.frame['top'][top_stack_items[top_stack_items.length-1]]['mesh'];
     return last_frame_top;
   }else{
-    var panel_names = Object.keys(parts.panels);
+    var panel_names = Object.keys(parts.panels).sort();
     var current_panel_index = panel_names.indexOf(panel_name);
     var prev_panel_name = panel_names[current_panel_index-1];
     var prev_panel = parts.panels[prev_panel_name];
@@ -1108,6 +1097,10 @@ function panel_width(panel) {
   var pmax = panel_right_max(panel);
   var pmin = panel_left_min(panel);
   return pmax-pmin;
+}
+
+function frame_top_min(frame) {
+  return entity_side_extreme(frame, 'top', 'y', 'min');
 }
 
 function frame_top_max(frame) {
